@@ -1,0 +1,10 @@
+.DS_Store
+*.out
+*.gch
+test
+.idea
+cmake-build-debug
+mybenchmark
+mytest
+gbench
+gtest
