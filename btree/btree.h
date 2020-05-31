@@ -1,0 +1,48 @@
+#include <bits/stdc++.h>
+
+struct Item {
+  unsigned long key;
+  unsigned long val;
+  bool operator<(const Item &right) const {
+    return key == right.key ? val < right.val : key < right.key;
+  }
+};
+
+class Node {
+public:
+  bool is_leaf{false};
+  unsigned short key_cnt{0};
+  std::vector<Item> keys; // 2*T-1
+  std::vector<Node *> c;  // 2*T
+  Node(unsigned short t) {
+    keys = std::vector<Item>(2 * t - 1);
+    c = std::vector<Node *>(2 * t, nullptr);
+  }
+};
+
+class BTree {
+private:
+  Node *root;
+  unsigned short t;
+  unsigned short key_max; // 2*T-1
+  unsigned short key_min; // T-1
+
+public:
+  // B-Tree-Create
+  BTree(unsigned short t_num);
+  void insert(Item k);
+  bool delete_key(unsigned long k);
+  Item search(unsigned long k) { return search(root, k); }
+  void tree_walk(std::vector<Item> *v) { tree_walk(root, v); }
+
+private:
+  Node *allocate_node();
+  void insert_nonfull(Node *x, Item k);
+  void split_child(Node *x, unsigned short i);
+  Item search(Node *x, unsigned long k);
+  bool delete_key(Node *x, unsigned long k);
+  void tree_walk(Node *x, std::vector<Item> *v);
+  Node *max_leaf_node_in_subtree(Node *x);
+  Node *min_leaf_node_in_subtree(Node *x);
+  void merge(Node *x, unsigned short idx);
+};
