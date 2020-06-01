@@ -2,7 +2,7 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-BTree::BTree(unsigned short t_num) : t{t_num} {
+Btree::Btree(unsigned short t_num) : t{t_num} {
   key_max = 2 * t_num - 1;
   key_min = t_num - 1;
   Node *n = allocate_node();
@@ -11,13 +11,13 @@ BTree::BTree(unsigned short t_num) : t{t_num} {
 }
 
 // Allocate-Node
-Node *BTree::allocate_node() {
+Node *Btree::allocate_node() {
   Node *n = new Node(t);
   return n;
 }
 
 // insert
-void BTree::insert(Item k) {
+void Btree::insert(Item k) {
   Node *r = root;
   if (r->key_cnt == key_max) {
     Node *s = allocate_node();
@@ -28,7 +28,7 @@ void BTree::insert(Item k) {
   insert_nonfull(root, k);
 }
 
-void BTree::insert_nonfull(Node *x, Item k) {
+void Btree::insert_nonfull(Node *x, Item k) {
   unsigned short i = x->key_cnt;
   if (x->is_leaf) {
     while (i >= 1 && k.key < x->keys[i - 1].key) {
@@ -53,7 +53,7 @@ void BTree::insert_nonfull(Node *x, Item k) {
   }
 }
 
-void BTree::split_child(Node *x, unsigned short i) {
+void Btree::split_child(Node *x, unsigned short i) {
   Node *z = allocate_node();
   Node *y = x->c[i];
   z->is_leaf = y->is_leaf;
@@ -83,7 +83,7 @@ void BTree::split_child(Node *x, unsigned short i) {
   x->key_cnt++;
 }
 
-Item BTree::search(Node *x, unsigned long k) {
+Item Btree::search(Node *x, unsigned long k) {
   unsigned short i = 0;
   // search key range or key itself
   int l = -1, m, r = x->key_cnt;
@@ -105,19 +105,19 @@ Item BTree::search(Node *x, unsigned long k) {
   return search(x->c[i], k);
 }
 
-Node *BTree::min_leaf_node_in_subtree(Node *x) {
+Node *Btree::min_leaf_node_in_subtree(Node *x) {
   if (x->is_leaf)
     return x;
   return min_leaf_node_in_subtree(x->c[0]);
 }
 
-Node *BTree::max_leaf_node_in_subtree(Node *x) {
+Node *Btree::max_leaf_node_in_subtree(Node *x) {
   if (x->is_leaf)
     return x;
   return max_leaf_node_in_subtree(x->c[x->key_cnt]);
 }
 
-void BTree::merge(Node *x, unsigned short idx) {
+void Btree::merge(Node *x, unsigned short idx) {
   Node *y = x->c[idx];
   Node *z = x->c[idx + 1];
 
@@ -141,7 +141,7 @@ void BTree::merge(Node *x, unsigned short idx) {
   delete z;
 }
 
-bool BTree::delete_key(unsigned long k) {
+bool Btree::delete_key(unsigned long k) {
   if (root->key_cnt == 0)
     return false;
 
@@ -159,7 +159,7 @@ bool BTree::delete_key(unsigned long k) {
   // Then delete key
   return delete_key(root, k);
 }
-bool BTree::delete_key(Node *x, unsigned long k) {
+bool Btree::delete_key(Node *x, unsigned long k) {
   // 0. find a key or link-position
   unsigned short i = x->key_cnt - 1;
   while (i > 0 && x->keys[i].key > k) {
@@ -245,7 +245,7 @@ bool BTree::delete_key(Node *x, unsigned long k) {
   }
 }
 
-void BTree::tree_walk(Node *x, vector<Item> *v) {
+void Btree::tree_walk(Node *x, vector<Item> *v) {
   if (x->is_leaf) {
     for (unsigned short i = 0; i < x->key_cnt; i++) {
       v->push_back(x->keys[i]);

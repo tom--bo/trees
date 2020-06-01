@@ -1,17 +1,22 @@
 # B tree
 
-Refer "Algorithm Introduction"(book)
+Refer the book "Algorithm Introduction"
 
 ## How to test
 
 ```
-g++ btree.cpp btree_test.cpp -o test -lgtest_main -lgtest -lpthread
-./test
+make mytest
+
+# clang++ btree.cpp mytest.cpp -o mytest -Wall -Wextra
+# ./mytest
 ```
 
-## How to execute sample
+## Benchmark sample
+
 ```
-g++ -o sample btree.cpp sample.cpp -Wall -Wextra
-./sample
+make mybench
+
+# clang++ bench.cpp btree.cpp -isystem benchmark/include -Lbenchmark/build/src -lbenchmark -lpthread -o gbench
+# ./gbench
 ```
 

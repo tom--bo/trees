@@ -30,7 +30,7 @@ static void BM_WriteRandomToFile(benchmark::State &state) {
 // BENCHMARK(BM_WriteRandomToFile)->Arg(1);
 
 static void BM_BtreeOnlyAdd(benchmark::State &state) {
-  BTree b(state.range(0));
+  Btree b(state.range(0));
 
   mt19937 mt(0);
   for (auto _ : state)

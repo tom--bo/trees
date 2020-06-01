@@ -10,7 +10,7 @@ void bench(short int t, int exp_cnt, unsigned long ope_cnt, int mod,
   long total_time = 0;
   for (int i = 0; i < exp_cnt; i++) {
     // init
-    BTree b(t);
+    Btree b(t);
     mt19937_64 mt(i);
 
     steady_clock::time_point start = steady_clock::now();

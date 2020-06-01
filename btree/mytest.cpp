@@ -23,7 +23,7 @@ void test(unsigned short t, string filename, int num) {
   short int flag;
   unsigned long data, i = 0;
 
-  BTree b = BTree(t);
+  Btree b = Btree(t);
   vector<Item> v;
 
   while (cin >> flag >> data) {

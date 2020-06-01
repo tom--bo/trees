@@ -16,7 +16,7 @@ void delete_vals(vector<Item> &v, unsigned long k) {
   v.erase(v.begin() + r);
 }
 
-void add_test_data(BTree &b, vector<Item> &v, vector<unsigned long> &keys) {
+void add_test_data(Btree &b, vector<Item> &v, vector<unsigned long> &keys) {
   unsigned long klen = keys.size();
   for (unsigned long i = 0; i < klen; i++) {
     Item item = Item{keys[i], i};
@@ -25,7 +25,7 @@ void add_test_data(BTree &b, vector<Item> &v, vector<unsigned long> &keys) {
   }
 }
 
-void del_test_data(BTree &b, vector<Item> &v, vector<unsigned long> &keys) {
+void del_test_data(Btree &b, vector<Item> &v, vector<unsigned long> &keys) {
   unsigned long klen = keys.size();
   for (unsigned long i = 0; i < klen; i++) {
     b.delete_key(keys[i]);
@@ -36,7 +36,7 @@ void del_test_data(BTree &b, vector<Item> &v, vector<unsigned long> &keys) {
 void tree_walk_test(unsigned short t, vector<unsigned long> &add_keys,
                     vector<unsigned long> &del_keys) {
   vector<Item> v;
-  BTree b = BTree(t);
+  Btree b = Btree(t);
 
   add_test_data(b, v, add_keys);
 
@@ -127,7 +127,7 @@ TEST(BtreeTest, duplicate_keys_t_5_case_3) {
 void search_test(unsigned short t, vector<unsigned long> &add_keys,
                  vector<unsigned long> &del_keys) {
   vector<Item> v;
-  BTree b = BTree(t);
+  Btree b = Btree(t);
 
   add_test_data(b, v, add_keys);
 

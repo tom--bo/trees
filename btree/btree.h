@@ -20,7 +20,7 @@ public:
   }
 };
 
-class BTree {
+class Btree {
 private:
   Node *root;
   unsigned short t;
@@ -29,7 +29,7 @@ private:
 
 public:
   // B-Tree-Create
-  BTree(unsigned short t_num);
+  Btree(unsigned short t_num);
   void insert(Item k);
   bool delete_key(unsigned long k);
   Item search(unsigned long k) { return search(root, k); }
