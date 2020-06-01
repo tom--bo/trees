@@ -31,12 +31,13 @@ void bench(short int t, int exp_cnt, unsigned long ope_cnt, int mod,
     total_time += st;
 
     // end
+    // b.print_metrics();
     // delete b;
   }
 
   long ave_time = total_time / exp_cnt;
-  printf("T: %4d, ope_cnt: %lu, mod: %d, del(%%): %d, Ave: %3ld.%06ld ms\n", t, ope_cnt, mod,
-         del_rate, ave_time / 1000000, ave_time % 1000000);
+  printf("T: %4d, ope_cnt: %lu, mod: %d, del(%%): %d, Ave: %3ld.%06ld ms\n", t,
+         ope_cnt, mod, del_rate, ave_time / 1000000, ave_time % 1000000);
 }
 
 int main() {

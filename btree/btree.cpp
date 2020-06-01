@@ -8,6 +8,7 @@ Btree::Btree(unsigned short t_num) : t{t_num} {
   Node *n = allocate_node();
   n->is_leaf = true;
   root = n;
+  mc = MetricCounter();
 }
 
 // Allocate-Node
@@ -54,6 +55,7 @@ void Btree::insert_nonfull(Node *x, Item k) {
 }
 
 void Btree::split_child(Node *x, unsigned short i) {
+  mc.node_split++;
   Node *z = allocate_node();
   Node *y = x->c[i];
   z->is_leaf = y->is_leaf;
@@ -118,6 +120,7 @@ Node *Btree::max_leaf_node_in_subtree(Node *x) {
 }
 
 void Btree::merge(Node *x, unsigned short idx) {
+  mc.node_merge++;
   Node *y = x->c[idx];
   Node *z = x->c[idx + 1];
 
