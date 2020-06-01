@@ -12,11 +12,13 @@ class Node {
 public:
   bool is_leaf{false};
   unsigned short key_cnt{0};
-  std::vector<Item> keys; // 2*T-1
-  std::vector<Node *> c;  // 2*T
+  Item *keys; // 2*T-1
+  Node **c;
   Node(unsigned short t) {
-    keys = std::vector<Item>(2 * t - 1);
-    c = std::vector<Node *>(2 * t, nullptr);
+    keys = new Item[t * 2 - 1];
+    c = (Node **)malloc(sizeof(Node *) * (t * 2));
+    for (int i = 0; i < t * 2; i++)
+      c[i] = nullptr;
   }
 };
 
