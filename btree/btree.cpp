@@ -33,9 +33,9 @@ void Btree::insert_nonfull(Node *x, Item k) {
   unsigned short i = x->key_cnt;
   if (x->is_leaf) {
     while (i >= 1 && k.key < x->keys[i - 1].key) {
-      x->keys[i] = x->keys[i - 1];
       i--;
     }
+    std::memmove(&x->keys[i + 1], &x->keys[i], sizeof(Item) * (x->key_cnt - i));
     x->keys[i] = k;
     x->key_cnt++;
   } else {
@@ -61,23 +61,17 @@ void Btree::split_child(Node *x, unsigned short i) {
   z->is_leaf = y->is_leaf;
 
   // move second half nodes in y
-  for (unsigned short j = 0; j < key_min; j++) {
-    z->keys[j] = y->keys[j + t];
-  }
+  std::memmove(&z->keys[0], &y->keys[t], sizeof(Item) * key_min);
   z->key_cnt = key_min;
   // move second half pinter if y is not leaf-node
   if (!y->is_leaf) {
-    for (unsigned short j = 0; j < t; j++) {
-      z->c[j] = y->c[j + t];
-      y->c[j + t] = nullptr;
-    }
+    std::memmove(&z->c[0], &y->c[t], sizeof(Item) * t);
   }
 
   // make key space to add center-key of y
-  for (unsigned short j = x->key_cnt; j > i; j--) {
-    x->keys[j] = x->keys[j - 1];
-    x->c[j + 1] = x->c[j];
-  }
+  std::memmove(&x->keys[i + 1], &x->keys[i], sizeof(Item) * (x->key_cnt - i));
+  std::memmove(&x->c[i + 2], &x->c[i + 1], sizeof(Node *) * (x->key_cnt - i));
+
   // move up center-key of y
   x->c[i + 1] = z;
   x->keys[i] = y->keys[t - 1];
@@ -126,20 +120,17 @@ void Btree::merge(Node *x, unsigned short idx) {
 
   // push down x's key to y
   y->keys[y->key_cnt] = x->keys[idx];
-  for (unsigned short i = idx + 1; i < x->key_cnt; i++) {
-    x->keys[i - 1] = x->keys[i];
-    x->c[i] = x->c[i + 1];
-  }
+  std::memmove(&x->keys[idx], &x->keys[idx + 1],
+               sizeof(Item) * (x->key_cnt - idx - 1));
+  std::memmove(&x->c[idx + 1], &x->c[idx + 2],
+               sizeof(Node *) * (x->key_cnt - idx - 1));
   x->key_cnt--;
   y->key_cnt++;
 
   // move z's all keys to y
-  for (unsigned short i = 0; i < z->key_cnt; i++) {
-    y->keys[y->key_cnt] = z->keys[i];
-    y->c[y->key_cnt] = z->c[i];
-    y->key_cnt++;
-  }
-  y->c[y->key_cnt] = z->c[z->key_cnt];
+  std::memmove(&y->keys[y->key_cnt], &z->keys[0], sizeof(Item) * (z->key_cnt));
+  std::memmove(&y->c[y->key_cnt], &z->c[0], sizeof(Node *) * (z->key_cnt + 1));
+  y->key_cnt += z->key_cnt;
 
   delete z;
 }
@@ -174,9 +165,8 @@ bool Btree::delete_key(Node *x, unsigned long k) {
     // 1. x is leaf node and there is a 'k', just delete it
     if (x->keys[i].key == k &&
         i < x->key_cnt) { // key found // TODO: 後半の判定消せないか?
-      for (unsigned short j = i + 1; j < x->key_cnt; j++) {
-        x->keys[j - 1] = x->keys[j];
-      }
+      std::memmove(&x->keys[i], &x->keys[i + 1],
+                   sizeof(Item) * (x->key_cnt - i - 1));
       x->key_cnt--;
       return true;
     }
@@ -211,11 +201,8 @@ bool Btree::delete_key(Node *x, unsigned long k) {
       // 3.a.left
       // move key from c[i-1] via parent node(x)
       Node *b = x->c[i - 1];
-      for (unsigned short j = a->key_cnt; j > 0; j--) {
-        a->keys[j] = a->keys[j - 1];
-        a->c[j + 1] = a->c[j];
-      }
-      a->c[1] = a->c[0];
+      std::memmove(&a->keys[1], &a->keys[0], sizeof(Item) * (a->key_cnt));
+      std::memmove(&a->c[1], &a->c[0], sizeof(Node *) * (a->key_cnt + 1));
 
       a->keys[0] = x->keys[i - 1];
       x->keys[i - 1] = b->keys[b->key_cnt - 1];
@@ -231,11 +218,8 @@ bool Btree::delete_key(Node *x, unsigned long k) {
       a->c[a->key_cnt + 1] = c->c[0];
       a->key_cnt++;
 
-      for (unsigned short j = 1; j < c->key_cnt; j++) {
-        c->keys[j - 1] = c->keys[j];
-        c->c[j - 1] = c->c[j];
-      }
-      c->c[c->key_cnt - 1] = c->c[c->key_cnt];
+      std::memmove(&c->keys[0], &c->keys[1], sizeof(Item) * (c->key_cnt - 1));
+      std::memmove(&c->c[0], &c->c[1], sizeof(Node *) * (c->key_cnt));
       c->key_cnt--;
     } else {
       // 3.b
