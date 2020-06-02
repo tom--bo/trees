@@ -45,4 +45,14 @@ int main() {
   for (int i = 0; i < t.size(); i++) {
     bench(t[i], 5, 100000, 2000, 10);
   }
+
+  for (int i = 0; i < t.size(); i++) {
+    bench(t[i], 5, 500000, 1000, 30);
+  }
+
+  for (int i = 0; i < t.size(); i++) {
+    bench(t[i], 5, 1000000, 5000, 40);
+  }
+
+
 }
