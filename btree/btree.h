@@ -22,6 +22,19 @@ public:
   }
 };
 
+class BtreeNodeManager {
+  unsigned int pool_cnt;
+  short t;
+  std::vector<Node *> node_pool;
+  std::queue<Node *> returned_queue;
+
+public:
+  BtreeNodeManager(); // TODO: need to understand
+  BtreeNodeManager(short t, int node_cnt);
+  Node *get_node();
+  void return_node(Node *n);
+};
+
 struct MetricCounter {
   int node_merge{0};
   int node_split{0};
@@ -35,6 +48,7 @@ private:
   short key_max; // 2*T-1
   short key_min; // T-1
   MetricCounter mc;
+  BtreeNodeManager nm;
 
 public:
   // B-Tree-Create

@@ -2,32 +2,41 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-Btree::Btree(short t_num) : t{t_num} {
-  key_max = 2 * t_num - 1;
-  key_min = t_num - 1;
-  Node *n = allocate_node();
-  n->is_leaf = true;
-  root = n;
-  mc = MetricCounter();
+/*
+ * BtreeNodeManager
+ */
+
+BtreeNodeManager::BtreeNodeManager() {}
+BtreeNodeManager::BtreeNodeManager(short t_num, int node_cnt) : t{t_num} {
+  pool_cnt = 0;
+  node_pool = std::vector<Node *>(node_cnt);
 }
 
-// Allocate-Node
-Node *Btree::allocate_node() {
-  Node *n = new Node(t);
-  return n;
-}
-
-// insert
-void Btree::insert(Item k) {
-  Node *r = root;
-  if (r->key_cnt == key_max) {
-    Node *s = allocate_node();
-    root = s;
-    s->c[0] = r;
-    split_child(s, 0);
+Node *BtreeNodeManager::get_node() {
+  Node *n;
+  if (!returned_queue.empty()) {
+    n = returned_queue.front();
+    returned_queue.pop();
+    return n;
   }
-  insert_nonfull(root, k);
+  if (pool_cnt != node_pool.size() - 1) {
+    n = new Node(t);
+    node_pool.push_back(n);
+    pool_cnt++;
+    return n;
+  }
+  return node_pool[pool_cnt++];
 }
+
+void BtreeNodeManager::return_node(Node *n) {
+  n->key_cnt = 0;
+  n->is_leaf = false;
+  returned_queue.push(n);
+}
+
+/*
+ * Btree
+ */
 
 short find_key_or_right_bound_in_node(Node *x, unsigned long k) {
   short l = -1, r = x->key_cnt, m;
@@ -40,6 +49,32 @@ short find_key_or_right_bound_in_node(Node *x, unsigned long k) {
     }
   }
   return r;
+}
+
+Btree::Btree(short t_num) : t{t_num} {
+  key_max = 2 * t_num - 1;
+  key_min = t_num - 1;
+  nm = BtreeNodeManager(t_num, 3000);
+  mc = MetricCounter();
+
+  Node *n = allocate_node();
+  n->is_leaf = true;
+  root = n;
+}
+
+// Allocate-Node
+Node *Btree::allocate_node() { return nm.get_node(); }
+
+// insert
+void Btree::insert(Item k) {
+  Node *r = root;
+  if (r->key_cnt == key_max) {
+    Node *s = allocate_node();
+    root = s;
+    s->c[0] = r;
+    split_child(s, 0);
+  }
+  insert_nonfull(root, k);
 }
 
 void Btree::insert_nonfull(Node *x, Item k) {
@@ -152,7 +187,7 @@ void Btree::merge(Node *x, short idx) {
   }
   y->c[y->key_cnt] = z->c[z->key_cnt];
 
-  delete z;
+  nm.return_node(z);
 }
 
 bool Btree::delete_key(unsigned long k) {
@@ -166,7 +201,7 @@ bool Btree::delete_key(unsigned long k) {
     Node *x = root;
     Node *y = root->c[0];
     merge(x, 0);
-    delete x;
+    nm.return_node(x);
     root = y;
   }
 
