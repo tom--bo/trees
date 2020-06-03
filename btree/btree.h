@@ -11,10 +11,10 @@ struct Item {
 class Node {
 public:
   bool is_leaf{false};
-  unsigned short key_cnt{0};
+  short key_cnt{0};
   Item *keys; // 2*T-1
   Node **c;
-  Node(unsigned short t) {
+  Node(short t) {
     keys = new Item[t * 2 - 1];
     c = (Node **)malloc(sizeof(Node *) * (t * 2));
     for (int i = 0; i < t * 2; i++)
@@ -31,14 +31,14 @@ struct MetricCounter {
 class Btree {
 private:
   Node *root;
-  unsigned short t;
-  unsigned short key_max; // 2*T-1
-  unsigned short key_min; // T-1
+  short t;
+  short key_max; // 2*T-1
+  short key_min; // T-1
   MetricCounter mc;
 
 public:
   // B-Tree-Create
-  Btree(unsigned short t_num);
+  Btree(short t_num);
   void insert(Item k);
   bool delete_key(unsigned long k);
   Item search(unsigned long k) { return search(root, k); }
@@ -48,11 +48,11 @@ public:
 private:
   Node *allocate_node();
   void insert_nonfull(Node *x, Item k);
-  void split_child(Node *x, unsigned short i);
+  void split_child(Node *x, short i);
   Item search(Node *x, unsigned long k);
   bool delete_key(Node *x, unsigned long k);
   void tree_walk(Node *x, std::vector<Item> *v);
   Node *max_leaf_node_in_subtree(Node *x);
   Node *min_leaf_node_in_subtree(Node *x);
-  void merge(Node *x, unsigned short idx);
+  void merge(Node *x, short idx);
 };
