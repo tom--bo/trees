@@ -33,7 +33,7 @@ void del_test_data(Btree &b, vector<Item> &v, vector<unsigned long> &keys) {
   }
 }
 
-void tree_walk_test(unsigned short t, vector<unsigned long> &add_keys,
+void tree_walk_test(short t, vector<unsigned long> &add_keys,
                     vector<unsigned long> &del_keys) {
   vector<Item> v;
   Btree b = Btree(t);
@@ -124,7 +124,7 @@ TEST(BtreeTest, duplicate_keys_t_5_case_3) {
 }
 
 // search() test
-void search_test(unsigned short t, vector<unsigned long> &add_keys,
+void search_test(short t, vector<unsigned long> &add_keys,
                  vector<unsigned long> &del_keys) {
   vector<Item> v;
   Btree b = Btree(t);

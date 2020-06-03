@@ -17,7 +17,7 @@ void delete_vals(vector<Item> &v, unsigned long k) {
   }
 }
 
-void test(unsigned short t, string filename, int num) {
+void test(short t, string filename, int num) {
   ifstream in(filename);
   cin.rdbuf(in.rdbuf());
   short int flag;
@@ -70,7 +70,7 @@ void test(unsigned short t, string filename, int num) {
 }
 
 int main() {
-  vector<unsigned short> t = {2, 5, 10, 100};
+  vector<short> t = {2, 5, 10, 100};
   for (int n = 0; n < 4; n++) {
     cout << "T = " << t[n] << " ------------- " << endl;
     for (int i = 1; i <= 40; i++) {
