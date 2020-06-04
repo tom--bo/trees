@@ -17,6 +17,15 @@ void delete_vals(vector<Item> &v, unsigned long k) {
   }
 }
 
+map<unsigned long, int> mp;
+
+void mp_add(unsigned long k) { mp[k]++; }
+void mp_delete(unsigned long k) {
+  if (mp[k] != 0) {
+    mp[k]--;
+  }
+}
+
 void test(short t, string filename, int num) {
   ifstream in(filename);
   cin.rdbuf(in.rdbuf());
@@ -24,39 +33,38 @@ void test(short t, string filename, int num) {
   unsigned long data, i = 0;
 
   Btree b = Btree(t);
-  vector<Item> v;
+  mp = map<unsigned long, int>();
 
   while (cin >> flag >> data) {
     i++;
     if (flag == 1) { // 1: add
       Item item = Item{data, i};
       b.insert(item);
-      v.push_back(item);
+      mp_add(data);
     } else { // 2: delete
       b.delete_key(data);
-      if (v.size() > 0) {
-        sort(v.begin(), v.end());
-        delete_vals(v, data);
-      }
+      mp_delete(data);
     }
   }
-  sort(v.begin(), v.end());
 
   // check
   vector<Item> c;
   b.tree_walk(&c);
 
-  // cout << " -- check -- " << endl;
-
   int diff_from = -1;
-  int l = v.size();
+  int l = c.size();
   for (int i = 0; i < l; i++) {
-    // printf("%3d: -- ", i);
-    // printf("key: %2ld, val: %2ld -- ", v[i].key, v[i].val);
-    // printf("key: %2ld, val: %2ld\n", c[i].key, c[i].val);
-    if (diff_from == -1 && v[i].key != c[i].key) {
-      // cout << "=========" << v[i].key << " " << c[i].key << endl;
+    if (diff_from == -1 && mp[c[i].key] <= 0) {
       diff_from = i;
+      break;
+    }
+    mp[c[i].key]--;
+  }
+
+  for (auto i = mp.begin(); i != mp.end(); ++i) {
+    if (i->second != 0) {
+      cout << "case " << num << " failed: remaining key in map test" << endl;
+      return;
     }
   }
 
@@ -64,7 +72,7 @@ void test(short t, string filename, int num) {
     cout << "case " << num << " succeeded!" << endl;
   } else {
     cout << "case " << num << " failed: ";
-    cout << "different data from " << diff_from << "  --  ";
+    cout << "different data from " << diff_from << "  --  " << endl;
   }
   return;
 }
