@@ -56,6 +56,7 @@ public:
   void insert(Item k);
   bool delete_key(unsigned long k);
   Item search(unsigned long k) { return search(root, k); }
+  unsigned long count(unsigned long k) { return count(root, k); }
   void tree_walk(std::vector<Item> *v) { tree_walk(root, v); }
   void print_metrics() { mc.print(); }
 
@@ -64,6 +65,7 @@ private:
   void insert_nonfull(Node *x, Item k);
   void split_child(Node *x, short i);
   Item search(Node *x, unsigned long k);
+  unsigned long count(Node *x, unsigned long k);
   bool delete_key(Node *x, unsigned long k);
   void tree_walk(Node *x, std::vector<Item> *v);
   Node *max_leaf_node_in_subtree(Node *x);

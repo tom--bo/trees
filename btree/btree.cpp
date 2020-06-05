@@ -153,6 +153,27 @@ Item Btree::search(Node *x, unsigned long k) {
   return search(x->c[i], k);
 }
 
+unsigned long Btree::count(Node *x, unsigned long k) {
+  unsigned long cnt = 0;
+  if (x->is_leaf) {
+    for (short i = 0; i < x->key_cnt; i++) {
+      if (x->keys[i].key == k)
+        cnt++;
+    }
+    return cnt;
+  }
+  short i = 0;
+  // search key range or key itself
+  i = find_key_or_right_bound_in_node(x, k);
+  cnt += count(x->c[i], k);
+  while (i < x->key_cnt && x->keys[i].key == k) {
+    i++;
+    cnt++;
+    cnt += count(x->c[i], k);
+  }
+  return cnt;
+}
+
 Node *Btree::min_leaf_node_in_subtree(Node *x) {
   if (x->is_leaf)
     return x;

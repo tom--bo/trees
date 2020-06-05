@@ -2,21 +2,6 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-void delete_vals(vector<Item> &v, unsigned long k) {
-  unsigned long m, l = -1, r = v.size() - 1;
-  while (r - l > 1) {
-    m = (l + r) / 2;
-    if (v[m].key >= k) {
-      r = m;
-    } else {
-      l = m;
-    }
-  }
-  if (v[r].key == k) {
-    v.erase(v.begin() + r);
-  }
-}
-
 map<unsigned long, int> mp;
 
 void mp_add(unsigned long k) { mp[k]++; }
@@ -31,11 +16,14 @@ void test(short t, string filename, int num) {
   cin.rdbuf(in.rdbuf());
   short int flag;
   unsigned long data, i = 0;
+  unsigned long data_max = 0;
 
   Btree b = Btree(t);
   mp = map<unsigned long, int>();
 
   while (cin >> flag >> data) {
+    if (data > data_max)
+      data_max = data;
     i++;
     if (flag == 1) { // 1: add
       Item item = Item{data, i};
@@ -51,6 +39,16 @@ void test(short t, string filename, int num) {
   vector<Item> c;
   b.tree_walk(&c);
 
+  // count function test
+  for (unsigned long i = 0; i <= data_max; i++) {
+    if (b.count(i) != mp[i]) {
+      cout << "case " << num << " failed: count(" << i << ") is different!"
+           << endl;
+      return;
+    }
+  }
+
+  // data check
   int diff_from = -1;
   int l = c.size();
   for (int i = 0; i < l; i++) {
