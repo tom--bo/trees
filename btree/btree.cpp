@@ -6,7 +6,6 @@ using namespace std;
  * BtreeNodeManager
  */
 
-BtreeNodeManager::BtreeNodeManager() {}
 BtreeNodeManager::BtreeNodeManager(short t_num, int node_cnt) : t{t_num} {
   pool_cnt = 0;
   node_pool = std::vector<Node *>(node_cnt);
@@ -51,7 +50,7 @@ short find_key_or_right_bound_in_node(Node *x, unsigned long k) {
   return r;
 }
 
-Btree::Btree(short t_num) : t{t_num} {
+Btree::Btree(short t_num) : t{t_num}, nm{BtreeNodeManager(t_num, 3000)} {
   key_max = 2 * t_num - 1;
   key_min = t_num - 1;
   nm = BtreeNodeManager(t_num, 3000);

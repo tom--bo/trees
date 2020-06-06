@@ -29,7 +29,6 @@ class BtreeNodeManager {
   std::queue<Node *> returned_queue;
 
 public:
-  BtreeNodeManager(); // TODO: need to understand
   BtreeNodeManager(short t, int node_cnt);
   Node *get_node();
   void return_node(Node *n);
