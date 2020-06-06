@@ -234,6 +234,7 @@ BpNode *Bplustree::max_leaf_node_in_subtree(BpNode *x) {
   return max_leaf_node_in_subtree(x->c[x->key_cnt]);
 }
 
+// ok
 void Bplustree::merge(BpNode *x, short idx) {
   mc.node_merge++;
   BpNode *y = x->c[idx];
@@ -255,6 +256,11 @@ void Bplustree::merge(BpNode *x, short idx) {
     y->key_cnt++;
   }
   y->c[y->key_cnt] = z->c[z->key_cnt];
+
+  if(z->right) {
+    y->right = z->right;
+    z->right->left = y;
+  }
 
   nm.return_node(z);
 }
@@ -278,6 +284,7 @@ bool Bplustree::delete_key(unsigned long k) {
   // Then delete key
   return delete_key(root, k);
 }
+
 bool Bplustree::delete_key(BpNode *x, unsigned long k) {
   // 0. find a key or link-position
   short i = find_key_or_right_bound_in_node(x, k);
