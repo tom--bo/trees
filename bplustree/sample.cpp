@@ -12,15 +12,22 @@ void mp_delete(unsigned long k) {
 }
 
 int main() {
-  unsigned short t = 2;
+  unsigned short t = 5;
   // vector<unsigned long> d = {1, 2, 3, 4, 5};
-  vector<unsigned long> d = {10, 7,  8,  14, 12, 2, 4,  5,  3, 20, 21,
-                             17, 18, 16, 11, 1,  9, 13, 15, 6, 19};
+  // vector<unsigned long> d = {10, 7,  8,  14, 12, 2, 4,  5,  3, 20, 21,
+  //                           17, 18, 16, 11, 1,  9, 13, 15, 6, 19};
+  vector<unsigned long> d = {
+      31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31,
+      31, 3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,
+      3,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
+      1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  2};
+  vector<unsigned long> del = {
+      1, 2, 3, 3, 3, 3 //, 3, 3, 3
+  };
   Bplustree b = Bplustree(t);
   mp = map<unsigned long, int>();
 
   unsigned long data_max = 0;
-
   for (unsigned int i = 0; i < d.size(); i++) {
     if (d[i] > data_max) {
       data_max = d[i];
@@ -28,6 +35,12 @@ int main() {
     Item item = Item{d[i], i};
     b.insert(item);
     mp_add(d[i]);
+  }
+
+  // del
+  for (unsigned int i = 0; i < del.size(); i++) {
+    b.delete_key(del[i]);
+    mp_delete(del[i]);
   }
 
   // check
@@ -47,9 +60,9 @@ int main() {
   int l = c.size();
   unsigned max_val = 0;
   for (int i = 0; i < l; i++) {
-    if(max_val < c[i].key) {
+    if (max_val < c[i].key) {
       max_val = c[i].key;
-    } else if(max_val > c[i].key){
+    } else if (max_val > c[i].key) {
       cout << "dumped vector's order is wired!" << endl;
       return 0;
     }
