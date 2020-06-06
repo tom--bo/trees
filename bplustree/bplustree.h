@@ -14,7 +14,7 @@ public:
   BpNode *left{nullptr}, *right{nullptr};
   bool is_leaf{false};
   short key_cnt{0};
-  Item *keys; // 2*T-1
+  Item *keys; // 2*T
   BpNode **c;
   BpNode(short t) {
     keys = new Item[t * 2];
