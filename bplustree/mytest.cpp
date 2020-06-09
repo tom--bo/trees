@@ -40,13 +40,15 @@ void test(short t, string filename, int num) {
   b.tree_walk(&c);
 
   // count function test
-  // for (unsigned long i = 0; i <= data_max; i++) {
-  //   if (b.count(i) != mp[i]) {
-  //     cout << "case " << num << " failed: count(" << i << ") is different!"
-  //          << endl;
-  //     return;
-  //   }
-  // }
+  for (unsigned long i = 0; i <= data_max; i++) {
+    unsigned long bcnt = b.count(i);
+    if (bcnt != mp[i]) {
+      cout << "case " << num << " failed: count(" << i << ") is different!"
+           << endl;
+      cout << "bcnt: " << bcnt << "-- map: " << mp[i] << endl;
+      return;
+    }
+  }
 
   // data check
   int diff_from = -1;

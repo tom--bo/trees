@@ -53,6 +53,22 @@ short find_key_or_right_bound_in_node(BpNode *x, unsigned long k) {
   return r;
 }
 
+short find_right_most_pointer_in_node(BpNode *x, unsigned long k) {
+  short l = 0, r = x->key_cnt, m;
+  while (r - l > 1) {
+    m = (r + l) / 2;
+    if (x->keys[m].key <= k) {
+      l = m;
+    } else {
+      r = m;
+    }
+  }
+  if (l < x->key_cnt && x->keys[l].key <= k) {
+    l++;
+  }
+  return l;
+}
+
 Bplustree::Bplustree(short t_num)
     : t{t_num}, nm{BplustreeNodeManager(t_num, 3000)} {
   key_max = 2 * t_num;
@@ -185,6 +201,55 @@ Item Bplustree::search(BpNode *x, unsigned long k) {
   return search(x->c[i], k);
 }
 
+/*
+unsigned long Bplustree::count_full_scan(BpNode *x, unsigned long k) {
+  unsigned long cnt = 0;
+  if (x->is_leaf) {
+    for (short i = 0; i < x->key_cnt; i++) {
+      if (x->keys[i].key == k) {
+        cnt++;
+      }
+    }
+    if (x->right) {
+      cnt += count(x->right, k);
+    }
+    return cnt;
+  }
+  cnt += count(x->c[0], k);
+  return cnt;
+}
+*/
+
+unsigned long Bplustree::count(BpNode *x, unsigned long k) {
+  unsigned long cnt = 0;
+  if (x->is_leaf) {
+    for (short i = 0; i < x->key_cnt; i++) {
+      if (x->keys[i].key == k) {
+        cnt++;
+      }
+    }
+    if (x->left) {
+      if (cnt != 0) {
+        cnt += count(x->left, k);
+      }
+    }
+    return cnt;
+  }
+  short i = find_right_most_pointer_in_node(x, k);
+  cnt += count(x->c[i], k);
+  return cnt;
+}
+
+unsigned long Bplustree::count_once(BpNode *x, unsigned long k) {
+  unsigned long cnt = 0;
+  for (short i = 0; i < x->key_cnt; i++) {
+    if (x->keys[i].key == k) {
+      cnt++;
+    }
+  }
+  return cnt;
+}
+
 BpNode *Bplustree::min_leaf_node_in_subtree(BpNode *x) {
   if (x->is_leaf)
     return x;
@@ -232,6 +297,8 @@ void Bplustree::merge(BpNode *x, short idx) {
   if (z->right) {
     y->right = z->right;
     z->right->left = y;
+  } else {
+    y->right = nullptr;
   }
 
   nm.return_node(z);
@@ -259,6 +326,7 @@ bool Bplustree::delete_key(unsigned long k) {
 
 bool Bplustree::delete_key(BpNode *x, unsigned long k) {
   // find a key or link-position
+  // short i = find_key_or_right_bound_in_node(x, k);
   short i = find_key_or_right_bound_in_node(x, k);
   if (x->is_leaf) {
     if (x->keys[i].key == k &&
