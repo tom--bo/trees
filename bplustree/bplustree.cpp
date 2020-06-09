@@ -13,7 +13,6 @@ BplustreeNodeManager::BplustreeNodeManager(short t_num, int node_cnt)
   node_pool = std::vector<BpNode *>(node_cnt);
 }
 
-// ok
 BpNode *BplustreeNodeManager::get_node() {
   BpNode *n;
   if (!returned_queue.empty()) {
@@ -30,7 +29,6 @@ BpNode *BplustreeNodeManager::get_node() {
   return node_pool[pool_cnt++];
 }
 
-// ok
 void BplustreeNodeManager::return_node(BpNode *n) {
   n->key_cnt = 0;
   n->is_leaf = false;
@@ -43,8 +41,6 @@ void BplustreeNodeManager::return_node(BpNode *n) {
 /*
  * Bplustree
  */
-
-// ok
 short find_key_or_right_bound_in_node(BpNode *x, unsigned long k) {
   short l = -1, r = x->key_cnt, m;
   while (r - l > 1) {
@@ -58,7 +54,6 @@ short find_key_or_right_bound_in_node(BpNode *x, unsigned long k) {
   return r;
 }
 
-// ok
 Bplustree::Bplustree(short t_num) : t{t_num} {
   key_max = 2 * t_num;
   key_min = t_num - 1;
@@ -71,11 +66,9 @@ Bplustree::Bplustree(short t_num) : t{t_num} {
 }
 
 // Allocate-BpNode
-// ok
 BpNode *Bplustree::allocate_node() { return nm.get_node(); }
 
 // insert
-// ok
 void Bplustree::insert(Item k) {
   BpNode *r = root;
   if (r->key_cnt == key_max) {
@@ -87,7 +80,6 @@ void Bplustree::insert(Item k) {
   insert_nonfull(root, k);
 }
 
-// ok
 bool Bplustree::insert_nonfull(BpNode *x, Item k) {
   short i = x->key_cnt;
   if (x->is_leaf) {
@@ -100,6 +92,8 @@ bool Bplustree::insert_nonfull(BpNode *x, Item k) {
     // if left most in node was changed notify it to parent node
     if (i == 0)
       return true;
+    else
+      return false;
   } else {
     i = find_key_or_right_bound_in_node(x, k.key);
 
@@ -111,16 +105,16 @@ bool Bplustree::insert_nonfull(BpNode *x, Item k) {
       }
     }
     // if left most in child node changed, need to update key
-    if (insert_nonfull(x->c[i], k) && i != 0) {
-      x->keys[i - 1] = min_item_in_subtree(x->c[i]);
-    }
-    if (i == 1)
+    if (insert_nonfull(x->c[i], k)) {
+      if (i != 0) {
+        x->keys[i - 1] = min_item_in_subtree(x->c[i]);
+      }
       return true;
+    }
+    return false;
   }
-  return false;
 }
 
-// ok
 void Bplustree::split_child(BpNode *x, short i) {
   mc.node_split++;
   BpNode *z = allocate_node();
@@ -169,7 +163,6 @@ void Bplustree::split_child(BpNode *x, short i) {
   x->key_cnt++;
 }
 
-// ok
 Item Bplustree::search(BpNode *x, unsigned long k) {
   short i = 0;
   // search key range or key itself
@@ -192,78 +185,28 @@ Item Bplustree::search(BpNode *x, unsigned long k) {
   return search(x->c[i], k);
 }
 
-// ok
-unsigned long Bplustree::count(BpNode *x, unsigned long k) {
-  unsigned long cnt = 0;
-  if (x->is_leaf) {
-    for (short i = 0; i < x->key_cnt; i++) {
-      if (x->keys[i].key == k)
-        cnt++;
-    }
-    return cnt;
-  }
-  short i = 0;
-  // search key range or key itself
-  i = find_key_or_right_bound_in_node(x, k);
-  cnt += count(x->c[i], k);
-  while (i < x->key_cnt && x->keys[i].key == k) {
-    i++;
-    cnt += count(x->c[i], k);
-  }
-  return cnt;
-}
-
-// ok
 BpNode *Bplustree::min_leaf_node_in_subtree(BpNode *x) {
   if (x->is_leaf)
     return x;
   return min_leaf_node_in_subtree(x->c[0]);
 }
 
-// ok
 Item Bplustree::min_item_in_subtree(BpNode *x) {
   if (x->is_leaf)
     return x->keys[0];
   return min_item_in_subtree(x->c[0]);
 }
 
-// ok
 BpNode *Bplustree::max_leaf_node_in_subtree(BpNode *x) {
   if (x->is_leaf)
     return x;
   return max_leaf_node_in_subtree(x->c[x->key_cnt]);
 }
 
-// ok
 void Bplustree::merge(BpNode *x, short idx) {
   mc.node_merge++;
   BpNode *y = x->c[idx];
   BpNode *z = x->c[idx + 1];
-  // cout << idx << endl;
-
-  // cout << "merge called" << endl;
-  // cout << "-- x --" << endl;
-  // for (unsigned short j = 0; j < x->key_cnt; j++) {
-  //   cout << x->keys[j].key << " ";
-  // }
-  // cout << endl;
-
-  // cout << "-- y --" << endl;
-  // for (unsigned short j = 0; j < y->key_cnt; j++) {
-  //   cout << y->keys[j].key << " ";
-  // }
-  // cout << endl;
-
-  // cout << "-- z --" << endl;
-  // for (unsigned short j = 0; j < z->key_cnt; j++) {
-  //   cout << z->keys[j].key << " ";
-  // }
-  // cout << endl;
-
-  if (!y->is_leaf) {
-    // push down x's key to y
-    y->keys[y->key_cnt] = x->keys[idx];
-  }
 
   // delete x's key to merge
   for (unsigned short i = idx + 1; i < x->key_cnt; i++) {
@@ -273,6 +216,12 @@ void Bplustree::merge(BpNode *x, short idx) {
   x->key_cnt--;
 
   // move z's all keys to y
+  // unless child nodes are't, new mid-key needed before merge
+  if (!y->is_leaf) {
+    y->keys[y->key_cnt] = min_item_in_subtree(z->c[0]);
+    y->key_cnt++;
+  }
+
   for (unsigned short i = 0; i < z->key_cnt; i++) {
     y->keys[y->key_cnt] = z->keys[i];
     y->c[y->key_cnt] = z->c[i];
@@ -288,7 +237,6 @@ void Bplustree::merge(BpNode *x, short idx) {
   nm.return_node(z);
 }
 
-// ok
 bool Bplustree::delete_key(unsigned long k) {
   if (root->key_cnt == 0)
     return false;
@@ -315,11 +263,10 @@ bool Bplustree::delete_key(BpNode *x, unsigned long k) {
   if (x->is_leaf) {
     if (x->keys[i].key == k &&
         i < x->key_cnt) { // key found // TODO: 後半の判定消せないか?
-      for (unsigned short j = i + 1; j < x->key_cnt; j++) {
-        x->keys[j - 1] = x->keys[j];
+      for (unsigned short j = i; j < x->key_cnt - 1; j++) {
+        x->keys[j] = x->keys[j + 1];
       }
       x->key_cnt--;
-
       if (i == 0) {
         return true;
       }
@@ -328,16 +275,16 @@ bool Bplustree::delete_key(BpNode *x, unsigned long k) {
   }
 
   // Not leaf node
-  if (x->keys[i].key == k) {
+  if (x->keys[i].key == k && i < x->key_cnt) {
     i++;
   }
   // child has enough keys
   if (x->c[i]->key_cnt > key_min) {
-    if (delete_key(x->c[i], k) && i != 0) {
-      x->keys[i - 1] = min_item_in_subtree(x->c[i]);
-      if (i - 1 == 0) {
-        return true;
+    if (delete_key(x->c[i], k)) {
+      if (i != 0) {
+        x->keys[i - 1] = min_item_in_subtree(x->c[i]);
       }
+      return true;
     }
     return false;
   }
@@ -357,8 +304,12 @@ bool Bplustree::delete_key(BpNode *x, unsigned long k) {
     }
     a->c[1] = a->c[0];
 
-    // move key from b to b
-    a->keys[0] = b->keys[b->key_cnt - 1];
+    // move key from b to a (only link and need to re-calculate key[0]
+    if(a->is_leaf) {
+      a->keys[0] = b->keys[b->key_cnt-1];
+    } else {
+      a->keys[0] = min_item_in_subtree(a->c[1]);
+    }
     a->c[0] = b->c[b->key_cnt];
     a->key_cnt++;
     b->key_cnt--;
@@ -370,7 +321,12 @@ bool Bplustree::delete_key(BpNode *x, unsigned long k) {
     //  /   \
     // a     c
     BpNode *c = x->c[i + 1];
-    a->keys[a->key_cnt] = c->keys[0];
+    // need to re-calculate a's last key
+    if(a->is_leaf) {
+      a->keys[a->key_cnt] = c->keys[0];
+    } else {
+      a->keys[a->key_cnt] = min_item_in_subtree(c->c[0]);
+    }
     a->c[a->key_cnt + 1] = c->c[0];
     a->key_cnt++;
 
@@ -386,21 +342,15 @@ bool Bplustree::delete_key(BpNode *x, unsigned long k) {
       i--;
     }
     merge(x, i);
-    // cout << "merged" << endl;
-    // for (unsigned short j = 0; j < x->c[i]->key_cnt; j++) {
-    //   cout << x->c[i]->keys[j].key << " ";
-    // }
-    // cout << endl;
-    // for (unsigned short j = 0; j < x->c[i+1]->key_cnt; j++) {
-    //   cout << x->c[i+1]->keys[j].key << " ";
-    // }
-    // cout << endl;
   }
-  delete_key(x->c[i], k);
+  if (delete_key(x->c[i], k)) {
+    if (i != 0) {
+      x->keys[i - 1] = min_item_in_subtree(x->c[i]);
+    }
+  }
   return true;
 }
 
-// ok
 void Bplustree::tree_walk(BpNode *x, vector<Item> *v) {
   if (x->is_leaf) {
     for (short i = 0; i < x->key_cnt; i++) {
@@ -409,10 +359,9 @@ void Bplustree::tree_walk(BpNode *x, vector<Item> *v) {
     }
     return;
   } else {
-    for (short i = 0; i < x->key_cnt; i++) {
+    for (short i = 0; i < x->key_cnt + 1; i++) {
       tree_walk(x->c[i], v);
       // printf("key: %2lld, val: %2lld\n", x->keys[i].key, x->keys[i].val);
     }
-    tree_walk(x->c[x->key_cnt], v);
   }
 }

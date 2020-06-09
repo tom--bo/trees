@@ -14,11 +14,11 @@ public:
   BpNode *left{nullptr}, *right{nullptr};
   bool is_leaf{false};
   short key_cnt{0};
-  Item *keys; // 2*T
-  BpNode **c;
+  std::vector<Item> keys; // 2*T
+  std::vector<BpNode*> c;
   BpNode(short t) {
-    keys = new Item[t * 2];
-    c = (BpNode **)malloc(sizeof(BpNode *) * (t * 2 + 1));
+    keys = std::vector<Item>(t * 2);
+    c = std::vector<BpNode *>(t * 2 + 1);
     for (int i = 0; i < t * 2 + 1; i++)
       c[i] = nullptr;
   }
@@ -58,7 +58,7 @@ public:
   void insert(Item k);
   bool delete_key(unsigned long k);
   Item search(unsigned long k) { return search(root, k); }
-  unsigned long count(unsigned long k) { return count(root, k); }
+  // unsigned long count(unsigned long k) { return count(root, k); }
   void tree_walk(std::vector<Item> *v) { tree_walk(root, v); }
   void print_metrics() { mc.print(); }
 
@@ -67,7 +67,7 @@ private:
   bool insert_nonfull(BpNode *x, Item k);
   void split_child(BpNode *x, short i);
   Item search(BpNode *x, unsigned long k);
-  unsigned long count(BpNode *x, unsigned long k);
+  // unsigned long count(BpNode *x, unsigned long k);
   bool delete_key(BpNode *x, unsigned long k);
   void tree_walk(BpNode *x, std::vector<Item> *v);
   BpNode *max_leaf_node_in_subtree(BpNode *x);
