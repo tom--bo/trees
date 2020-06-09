@@ -53,9 +53,9 @@ void test(short t, string filename, int num) {
   // data check
   int diff_from = -1;
   int l = c.size();
-  //? cout << "size: " <<  c.size() << endl;
+  //? cout << "size: " <<  p.size() << endl;
   for (int i = 0; i < l; i++) {
-    //? cout << c[i].key << endl;
+    //? cout << p[i].key << endl;
     if (diff_from == -1 && mp[c[i].key] <= 0) {
       diff_from = i;
       break;

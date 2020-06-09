@@ -13,12 +13,12 @@ public:
   bool is_leaf{false};
   short key_cnt{0};
   Item *keys; // 2*T-1
-  Node **c;
+  Node **p;
   Node(short t) {
     keys = new Item[t * 2 - 1];
-    c = (Node **)malloc(sizeof(Node *) * (t * 2));
+    p = (Node **)malloc(sizeof(Node *) * (t * 2));
     for (int i = 0; i < t * 2; i++)
-      c[i] = nullptr;
+      p[i] = nullptr;
   }
 };
 

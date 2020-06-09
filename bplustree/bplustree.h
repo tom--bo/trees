@@ -15,16 +15,16 @@ public:
   bool is_leaf{false};
   short key_cnt{0};
   // std::vector<Item> keys; // 2*T
-  // std::vector<BpNode *> c;
+  // std::vector<BpNode *> p;
   Item *keys;
-  BpNode **c;
+  BpNode **p;
   BpNode(short t) {
     // keys = std::vector<Item>(t * 2);
-    // c = std::vector<BpNode *>(t * 2 + 1);
+    // p = std::vector<BpNode *>(t * 2 + 1);
     keys = new Item[t * 2];
-    c = (BpNode **)malloc(sizeof(BpNode *) * (t * 2));
+    p = (BpNode **)malloc(sizeof(BpNode *) * (t * 2));
     for (int i = 0; i < t * 2 + 1; i++)
-      c[i] = nullptr;
+      p[i] = nullptr;
   }
 };
 
