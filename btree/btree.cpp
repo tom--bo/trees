@@ -54,7 +54,7 @@ Btree::Btree(short t_num) : t{t_num}, nm{BtreeNodeManager(t_num, 3000)} {
   key_max = 2 * t_num - 1;
   key_min = t_num - 1;
   nm = BtreeNodeManager(t_num, 3000);
-  mc = MetricCounter();
+  mc = BMetricCounter();
 
   Node *n = allocate_node();
   n->is_leaf = true;

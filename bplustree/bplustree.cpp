@@ -74,7 +74,7 @@ Bplustree::Bplustree(short t_num)
   key_max = 2 * t_num;
   key_min = t_num - 1;
   nm = BplustreeNodeManager(t_num, 3000);
-  mc = MetricCounter();
+  mc = BpMetricCounter();
 
   BpNode *n = allocate_node();
   n->is_leaf = true;

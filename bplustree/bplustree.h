@@ -1,12 +1,8 @@
 #include <bits/stdc++.h>
-
-struct Item {
-  unsigned long key;
-  unsigned long val;
-  bool operator<(const Item &right) const {
-    return key == right.key ? val < right.val : key < right.key;
-  }
-};
+#ifndef treecommon
+#define treecommon
+#include "tree_common.h"
+#endif
 
 class BpNode {
 public:
@@ -40,7 +36,7 @@ public:
   void return_node(BpNode *n);
 };
 
-struct MetricCounter {
+struct BpMetricCounter {
   int node_merge{0};
   int node_split{0};
   void print() { printf("Merge: %d, Split: %d\n", node_merge, node_split); }
@@ -52,7 +48,7 @@ private:
   short t;
   short key_max; // 2*T
   short key_min; // T
-  MetricCounter mc;
+  BpMetricCounter mc;
   BplustreeNodeManager nm;
 
 public:

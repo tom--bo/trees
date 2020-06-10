@@ -3,3 +3,5 @@ project(bplustree)
 
 set(CMAKE_CXX_STANDARD 14)
 add_executable(bplustree bplustree.cpp mytest.cpp)
+include_directories(../common)
+
