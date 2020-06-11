@@ -6,4 +6,4 @@ include_directories(common)
 include_directories(btree)
 include_directories(bplustree)
 
-add_executable(trees bplustree/bplustree.cpp trees btree/btree.cpp mytest.cpp)
+add_executable(trees bplustree/bplustree.cpp trees btree/btree.cpp main.cpp)

@@ -1,12 +1,7 @@
 all:
 	echo "a"
 
-mytest:
-	clang++ mytest.cpp btree/btree.cpp bplustree/bplustree.cpp -o mytest -Wall -Wextra -Ibtree -Ibplustree -Icommon
-	./mytest
-	rm mytest
+build:
+	clang++ -O2 main.cpp btree/btree.cpp bplustree/bplustree.cpp -o main -Wall -Wextra -Ibtree -Ibplustree -Icommon
 
-mybench:
-	clang++ -Wall mybench.cpp btree.cpp -o mybench
-	./mybench
-	rm mybench
+
