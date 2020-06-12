@@ -37,7 +37,7 @@ void BtreeNodeManager::return_node(Node *n) {
  * Btree
  */
 
-short find_key_or_right_bound_in_node(Node *x, unsigned long k) {
+short find_left_most_key_or_right_bound_in_node(Node *x, unsigned long k) {
   short l = -1, r = x->key_cnt, m;
   while (r - l > 1) {
     m = (l + r) / 2;
@@ -48,6 +48,19 @@ short find_key_or_right_bound_in_node(Node *x, unsigned long k) {
     }
   }
   return r;
+}
+
+short find_right_most_key_or_left_bound_in_node(Node *x, unsigned long k) {
+  short l = -1, r = x->key_cnt, m;
+  while (r - l > 1) {
+    m = (l + r) / 2;
+    if (x->keys[m].key > k) {
+      r = m;
+    } else {
+      l = m;
+    }
+  }
+  return l;
 }
 
 Btree::Btree(short t_num) : t{t_num}, nm{BtreeNodeManager(t_num, 3000)} {
@@ -86,7 +99,7 @@ void Btree::insert_nonfull(Node *x, Item k) {
     x->keys[i] = k;
     x->key_cnt++;
   } else {
-    i = find_key_or_right_bound_in_node(x, k.key);
+    i = find_left_most_key_or_right_bound_in_node(x, k.key);
 
     // if child node is full
     if (x->p[i]->key_cnt == key_max) {
@@ -152,23 +165,16 @@ Item Btree::search(Node *x, unsigned long k) {
   return search(x->p[i], k);
 }
 
-unsigned long Btree::count(Node *x, unsigned long k) {
+unsigned long Btree::count_range(Node *x, unsigned long min_,
+                                 unsigned long max_) {
   unsigned long cnt = 0;
-  if (x->is_leaf) {
-    for (short i = 0; i < x->key_cnt; i++) {
-      if (x->keys[i].key == k)
-        cnt++;
+  short l = find_left_most_key_or_right_bound_in_node(x, min_);
+  short r = find_right_most_key_or_left_bound_in_node(x, max_);
+  cnt += r - l + 1;
+  if (!x->is_leaf) {
+    for (short i = l; i <= r + 1; i++) {
+      cnt += count_range(x->p[i], min_, max_);
     }
-    return cnt;
-  }
-  short i = 0;
-  // search key range or key itself
-  i = find_key_or_right_bound_in_node(x, k);
-  cnt += count(x->p[i], k);
-  while (i < x->key_cnt && x->keys[i].key == k) {
-    i++;
-    cnt++;
-    cnt += count(x->p[i], k);
   }
   return cnt;
 }
@@ -230,11 +236,10 @@ bool Btree::delete_key(unsigned long k) {
 }
 bool Btree::delete_key(Node *x, unsigned long k) {
   // 0. find a key or link-position
-  short i = find_key_or_right_bound_in_node(x, k);
+  short i = find_left_most_key_or_right_bound_in_node(x, k);
   if (x->is_leaf) {
     // 1. x is leaf node and there is a 'k', just delete it
-    if (x->keys[i].key == k &&
-        i < x->key_cnt) { // key found
+    if (x->keys[i].key == k && i < x->key_cnt) { // key found
       for (unsigned short j = i + 1; j < x->key_cnt; j++) {
         x->keys[j - 1] = x->keys[j];
       }
@@ -243,8 +248,7 @@ bool Btree::delete_key(Node *x, unsigned long k) {
     }
     return false;
   }
-  if (i < x->key_cnt &&
-      x->keys[i].key == k) { // key found
+  if (i < x->key_cnt && x->keys[i].key == k) { // key found
     if (x->p[i]->key_cnt > key_min) {
       // 2.a x has k and max_leaf_node_in_subtree has more than t-1 keys
       Node *max_leaf = max_leaf_node_in_subtree(x->p[i]);

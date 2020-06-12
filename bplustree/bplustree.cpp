@@ -40,7 +40,7 @@ void BplustreeNodeManager::return_node(BpNode *n) {
 /*
  * Bplustree
  */
-short find_key_or_right_bound_in_node(BpNode *x, unsigned long k) {
+short find_left_most_key_or_right_bound_in_node(BpNode *x, unsigned long k) {
   short l = -1, r = x->key_cnt, m;
   while (r - l > 1) {
     m = (l + r) / 2;
@@ -51,6 +51,19 @@ short find_key_or_right_bound_in_node(BpNode *x, unsigned long k) {
     }
   }
   return r;
+}
+
+short find_right_most_key_or_left_bound_in_node(BpNode *x, unsigned long k) {
+  short l = -1, r = x->key_cnt, m;
+  while (r - l > 1) {
+    m = (l + r) / 2;
+    if (x->keys[m].key > k) {
+      r = m;
+    } else {
+      l = m;
+    }
+  }
+  return l;
 }
 
 short find_right_most_pointer_in_node(BpNode *x, unsigned long k) {
@@ -111,7 +124,7 @@ bool Bplustree::insert_nonfull(BpNode *x, Item k) {
     else
       return false;
   } else {
-    i = find_key_or_right_bound_in_node(x, k.key);
+    i = find_left_most_key_or_right_bound_in_node(x, k.key);
 
     // if child node is full
     if (x->p[i]->key_cnt == key_max) {
@@ -220,33 +233,20 @@ unsigned long Bplustree::count_full_scan(BpNode *x, unsigned long k) {
 }
 */
 
-unsigned long Bplustree::count(BpNode *x, unsigned long k) {
+unsigned long Bplustree::count_range(BpNode *x, unsigned long min_,
+                                     unsigned long max_) {
   unsigned long cnt = 0;
   if (x->is_leaf) {
-    for (short i = 0; i < x->key_cnt; i++) {
-      if (x->keys[i].key == k) {
-        cnt++;
-      }
-    }
-    if (x->left) {
-      if (cnt != 0) {
-        cnt += count(x->left, k);
-      }
+    short l = find_left_most_key_or_right_bound_in_node(x, min_);
+    short r = find_right_most_key_or_left_bound_in_node(x, max_);
+    cnt += r - l + 1;
+    if (x->left && cnt != 0) {
+      cnt += count_range(x->left, min_, max_);
     }
     return cnt;
   }
-  short i = find_right_most_pointer_in_node(x, k);
-  cnt += count(x->p[i], k);
-  return cnt;
-}
-
-unsigned long Bplustree::count_once(BpNode *x, unsigned long k) {
-  unsigned long cnt = 0;
-  for (short i = 0; i < x->key_cnt; i++) {
-    if (x->keys[i].key == k) {
-      cnt++;
-    }
-  }
+  short rp = find_right_most_pointer_in_node(x, max_);
+  cnt += count_range(x->p[rp], min_, max_);
   return cnt;
 }
 
@@ -326,10 +326,9 @@ bool Bplustree::delete_key(unsigned long k) {
 
 bool Bplustree::delete_key(BpNode *x, unsigned long k) {
   // find a key or link-position
-  short i = find_key_or_right_bound_in_node(x, k);
+  short i = find_left_most_key_or_right_bound_in_node(x, k);
   if (x->is_leaf) {
-    if (x->keys[i].key == k &&
-        i < x->key_cnt) { // key found
+    if (x->keys[i].key == k && i < x->key_cnt) { // key found
       for (unsigned short j = i; j < x->key_cnt - 1; j++) {
         x->keys[j] = x->keys[j + 1];
       }

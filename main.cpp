@@ -82,6 +82,22 @@ public:
       }
     }
 
+    // count range test
+    for (unsigned long i = 0; i < 10; i++) {
+      for (unsigned long j = 30; j < 200; j += 5) {
+        unsigned long tr_cnt = tr.count_range(i, j);
+        // count in map
+        unsigned long mp_cnt = 0;
+        for(unsigned long k = i; k <= j; k++) {
+          mp_cnt += mp[k];
+        }
+        if(tr_cnt != mp_cnt) {
+          cout << "tree_cnt: " << tr_cnt << " -- map_cnt: " << mp_cnt << endl;
+          return;
+        }
+      }
+    }
+
     // data check
     int diff_from = -1;
     int l = c.size();
@@ -160,11 +176,11 @@ int main(int argc, char *argv[]) {
     vector<short> t = {2, 5, 10, 100};
 
     // t (threshold)
-    for (int n = 0; n < 1; n++) {
+    for (int n = 0; n < 4; n++) {
       cout << "T = " << t[n] << " ------------- " << endl;
 
       // test case
-      for (int i = 1; i <= 3; i++) {
+      for (int i = 0; i <= 40; i++) {
         string s = getTestFilename(i);
 
         if (tree == "b") {
