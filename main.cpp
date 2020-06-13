@@ -1,3 +1,4 @@
+#include "bastertree.h"
 #include "bplustree.h"
 #include "btree.h"
 #include <bits/stdc++.h>
@@ -88,10 +89,10 @@ public:
         unsigned long tr_cnt = tr.count_range(i, j);
         // count in map
         unsigned long mp_cnt = 0;
-        for(unsigned long k = i; k <= j; k++) {
+        for (unsigned long k = i; k <= j; k++) {
           mp_cnt += mp[k];
         }
-        if(tr_cnt != mp_cnt) {
+        if (tr_cnt != mp_cnt) {
           cout << "tree_cnt: " << tr_cnt << " -- map_cnt: " << mp_cnt << endl;
           return;
         }
@@ -152,8 +153,8 @@ int main(int argc, char *argv[]) {
 
     case 'h':
       cout << "h: help" << endl;
-      cout << "t: Execut my test" << endl;
-      cout << "b: Execut my benchmark" << endl;
+      cout << "t: Execute my test" << endl;
+      cout << "b: Execute my benchmark" << endl;
       break;
 
     default: /* '?' */
@@ -167,6 +168,8 @@ int main(int argc, char *argv[]) {
     cout << "<< B tree >>" << endl;
   else if (tree == "bp")
     cout << "<< B+ tree >>" << endl;
+  else if (tree == "ba")
+    cout << "<< B* tree >>" << endl;
 
   /*
    *  TEST
@@ -188,6 +191,9 @@ int main(int argc, char *argv[]) {
           tr.test(s, t[n], i);
         } else if (tree == "bp") {
           auto tr = TreeKit<Bplustree>();
+          tr.test(s, t[n], i);
+        } else if (tree == "ba") {
+          auto tr = TreeKit<Bastertree>();
           tr.test(s, t[n], i);
         }
       }
@@ -214,6 +220,18 @@ int main(int argc, char *argv[]) {
       }
     } else if (tree == "bp") {
       auto tr = TreeKit<Bplustree>();
+      for (unsigned long i = 0; i < t.size(); i++) {
+        tr.bench(t[i], 5, 100000, 2000, 10);
+      }
+      for (unsigned long i = 0; i < t.size(); i++) {
+        tr.bench(t[i], 5, 500000, 1000, 30);
+      }
+      for (unsigned long i = 0; i < t.size(); i++) {
+        tr.bench(t[i], 5, 1000000, 5000, 40);
+      }
+
+    } else if (tree == "ba") {
+      auto tr = TreeKit<Bastertree>();
       for (unsigned long i = 0; i < t.size(); i++) {
         tr.bench(t[i], 5, 100000, 2000, 10);
       }
