@@ -138,14 +138,28 @@ string getTestFilename(int n) {
   return s;
 }
 
+string getSimpleTestFilename(int n) {
+  ios::fmtflags curret_flag = std::cout.flags();
+
+  ostringstream ss;
+  ss << std::setw(3) << std::setfill('0') << n;
+  string s(ss.str());
+  s = "tests/simple_data/case_" + s + ".txt";
+  std::cout.flags(curret_flag);
+  return s;
+}
+
 int main(int argc, char *argv[]) {
   // get options and args
   int opt;
-  bool bench = false, test = false;
-  while ((opt = getopt(argc, argv, "tbh")) != -1) {
+  bool bench = false, test = false, simple_test = false;
+  while ((opt = getopt(argc, argv, "stbh")) != -1) {
     switch (opt) {
     case 'b':
       bench = true;
+      break;
+    case 's':
+      simple_test = true;
       break;
     case 't':
       test = true;
@@ -170,6 +184,26 @@ int main(int argc, char *argv[]) {
     cout << "<< B+ tree >>" << endl;
   else if (tree == "ba")
     cout << "<< B* tree >>" << endl;
+
+  /*
+   *  SIMPLE TEST
+   */
+  if (simple_test) {
+    cout << "=== SIMPLE TEST ===" << endl;
+    for (int i = 0; i <= 10; i++) {
+      string s = getSimpleTestFilename(i);
+      if (tree == "b") {
+        auto tr = TreeKit<Btree>();
+        tr.test(s, 2, i);
+      } else if (tree == "bp") {
+        auto tr = TreeKit<Bplustree>();
+        tr.test(s, 2, i);
+      } else if (tree == "ba") {
+        auto tr = TreeKit<Bastertree>();
+        tr.test(s, 2, i);
+      }
+    }
+  }
 
   /*
    *  TEST
