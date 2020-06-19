@@ -1,4 +1,4 @@
-#include "bastertree.h"
+#include "bstartree.h"
 #include "bplustree.h"
 #include "btree.h"
 #include <bits/stdc++.h>
@@ -182,7 +182,7 @@ int main(int argc, char *argv[]) {
     cout << "<< B tree >>" << endl;
   else if (tree == "bp")
     cout << "<< B+ tree >>" << endl;
-  else if (tree == "ba")
+  else if (tree == "bs")
     cout << "<< B* tree >>" << endl;
 
   /*
@@ -198,8 +198,8 @@ int main(int argc, char *argv[]) {
       } else if (tree == "bp") {
         auto tr = TreeKit<Bplustree>();
         tr.test(s, 2, i);
-      } else if (tree == "ba") {
-        auto tr = TreeKit<Bastertree>();
+      } else if (tree == "bs") {
+        auto tr = TreeKit<Bstartree>();
         tr.test(s, 2, i);
       }
     }
@@ -226,8 +226,8 @@ int main(int argc, char *argv[]) {
         } else if (tree == "bp") {
           auto tr = TreeKit<Bplustree>();
           tr.test(s, t[n], i);
-        } else if (tree == "ba") {
-          auto tr = TreeKit<Bastertree>();
+        } else if (tree == "bs") {
+          auto tr = TreeKit<Bstartree>();
           tr.test(s, t[n], i);
         }
       }
@@ -264,8 +264,8 @@ int main(int argc, char *argv[]) {
         tr.bench(t[i], 5, 1000000, 5000, 40);
       }
 
-    } else if (tree == "ba") {
-      auto tr = TreeKit<Bastertree>();
+    } else if (tree == "bs") {
+      auto tr = TreeKit<Bstartree>();
       for (unsigned long i = 0; i < t.size(); i++) {
         tr.bench(t[i], 5, 100000, 2000, 10);
       }
