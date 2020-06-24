@@ -1,3 +1,4 @@
+#include "bstartree.h"
 #include "bplustree.h"
 #include "btree.h"
 #include <bits/stdc++.h>
@@ -78,6 +79,7 @@ public:
       if (tr.count(i) != mp[i]) {
         cout << "case " << num << " failed: count(" << i << ") is different!"
              << endl;
+        cout << "expected: " << mp[i] << ", returned: " << tr.count(i) << endl;
         return;
       }
     }
@@ -88,10 +90,10 @@ public:
         unsigned long tr_cnt = tr.count_range(i, j);
         // count in map
         unsigned long mp_cnt = 0;
-        for(unsigned long k = i; k <= j; k++) {
+        for (unsigned long k = i; k <= j; k++) {
           mp_cnt += mp[k];
         }
-        if(tr_cnt != mp_cnt) {
+        if (tr_cnt != mp_cnt) {
           cout << "tree_cnt: " << tr_cnt << " -- map_cnt: " << mp_cnt << endl;
           return;
         }
@@ -137,14 +139,28 @@ string getTestFilename(int n) {
   return s;
 }
 
+string getSimpleTestFilename(int n) {
+  ios::fmtflags curret_flag = std::cout.flags();
+
+  ostringstream ss;
+  ss << std::setw(3) << std::setfill('0') << n;
+  string s(ss.str());
+  s = "tests/simple_data/case_" + s + ".txt";
+  std::cout.flags(curret_flag);
+  return s;
+}
+
 int main(int argc, char *argv[]) {
   // get options and args
   int opt;
-  bool bench = false, test = false;
-  while ((opt = getopt(argc, argv, "tbh")) != -1) {
+  bool bench = false, test = false, simple_test = false;
+  while ((opt = getopt(argc, argv, "stbh")) != -1) {
     switch (opt) {
     case 'b':
       bench = true;
+      break;
+    case 's':
+      simple_test = true;
       break;
     case 't':
       test = true;
@@ -152,8 +168,8 @@ int main(int argc, char *argv[]) {
 
     case 'h':
       cout << "h: help" << endl;
-      cout << "t: Execut my test" << endl;
-      cout << "b: Execut my benchmark" << endl;
+      cout << "t: Execute my test" << endl;
+      cout << "b: Execute my benchmark" << endl;
       break;
 
     default: /* '?' */
@@ -167,6 +183,28 @@ int main(int argc, char *argv[]) {
     cout << "<< B tree >>" << endl;
   else if (tree == "bp")
     cout << "<< B+ tree >>" << endl;
+  else if (tree == "bs")
+    cout << "<< B* tree >>" << endl;
+
+  /*
+   *  SIMPLE TEST
+   */
+  if (simple_test) {
+    cout << "=== SIMPLE TEST ===" << endl;
+    for (int i = 0; i <= 10; i++) {
+      string s = getSimpleTestFilename(i);
+      if (tree == "b") {
+        auto tr = TreeKit<Btree>();
+        tr.test(s, 2, i);
+      } else if (tree == "bp") {
+        auto tr = TreeKit<Bplustree>();
+        tr.test(s, 2, i);
+      } else if (tree == "bs") {
+        auto tr = TreeKit<Bstartree>();
+        tr.test(s, 2, i);
+      }
+    }
+  }
 
   /*
    *  TEST
@@ -188,6 +226,9 @@ int main(int argc, char *argv[]) {
           tr.test(s, t[n], i);
         } else if (tree == "bp") {
           auto tr = TreeKit<Bplustree>();
+          tr.test(s, t[n], i);
+        } else if (tree == "bs") {
+          auto tr = TreeKit<Bstartree>();
           tr.test(s, t[n], i);
         }
       }
@@ -214,6 +255,18 @@ int main(int argc, char *argv[]) {
       }
     } else if (tree == "bp") {
       auto tr = TreeKit<Bplustree>();
+      for (unsigned long i = 0; i < t.size(); i++) {
+        tr.bench(t[i], 5, 100000, 2000, 10);
+      }
+      for (unsigned long i = 0; i < t.size(); i++) {
+        tr.bench(t[i], 5, 500000, 1000, 30);
+      }
+      for (unsigned long i = 0; i < t.size(); i++) {
+        tr.bench(t[i], 5, 1000000, 5000, 40);
+      }
+
+    } else if (tree == "bs") {
+      auto tr = TreeKit<Bstartree>();
       for (unsigned long i = 0; i < t.size(); i++) {
         tr.bench(t[i], 5, 100000, 2000, 10);
       }
