@@ -8,13 +8,17 @@ class BsNode {
 public:
   bool is_leaf{false};
   short key_cnt{0};
-  Item *keys; // 2*T-1
-  BsNode **p;
+  // Item *keys; // 2*T-1
+  // BsNode **p;
+  std::vector<Item> keys;
+  std::vector<BsNode *> p;
   BsNode(short t) {
-    keys = new Item[t * 2 - 1];
-    p = (BsNode **)malloc(sizeof(BsNode *) * (t * 2));
-    for (int i = 0; i < t * 2; i++)
-      p[i] = nullptr;
+    // keys = new Item[t * 2 - 1];
+    // p = (BsNode **)malloc(sizeof(BsNode *) * (t * 2));
+    // for (int i = 0; i < t * 2; i++)
+    //   p[i] = nullptr;
+    keys = std::vector<Item>(t * 2);
+    p = std::vector<BsNode *>(t * 2 + 1, nullptr);
   }
 };
 
@@ -39,9 +43,10 @@ struct BsMetricCounter {
 class Bstartree {
 private:
   BsNode *root;
-  short t;
-  short key_max; // 2*T-1
+  short key_max; // T*2
   short key_min; // T-1
+  short split_key_min;
+  // split_key_min => (t_num * 2 - 1) * 2 / 3;
   BsMetricCounter mc;
   BsNodeManager nm;
 
@@ -62,6 +67,10 @@ private:
   BsNode *allocate_node();
   void insert_nonfull(BsNode *x, Item k);
   void split_child(BsNode *x, short i);
+  void split_root(BsNode *x);
+  void move_key_to_left(BsNode *x, short i);
+  void move_key_to_right(BsNode *x, short i);
+  void move_keys_to_right(BsNode *x, short i, short cnt, bool to_empty);
   Item search(BsNode *x, unsigned long k);
   unsigned long count_range(BsNode *x, unsigned long min_, unsigned long max_);
   bool delete_key(BsNode *x, unsigned long k);

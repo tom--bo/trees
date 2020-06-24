@@ -79,6 +79,7 @@ public:
       if (tr.count(i) != mp[i]) {
         cout << "case " << num << " failed: count(" << i << ") is different!"
              << endl;
+        cout << "expected: " << mp[i] << ", returned: " << tr.count(i) << endl;
         return;
       }
     }
