@@ -8,17 +8,17 @@ class BsNode {
 public:
   bool is_leaf{false};
   short key_cnt{0};
-  // Item *keys; // 2*T-1
-  // BsNode **p;
-  std::vector<Item> keys;
-  std::vector<BsNode *> p;
+  Item *keys; // 2*T-1
+  BsNode **p;
+  // std::vector<Item> keys;
+  // std::vector<BsNode *> p;
   BsNode(short t) {
-    // keys = new Item[t * 2 - 1];
-    // p = (BsNode **)malloc(sizeof(BsNode *) * (t * 2));
-    // for (int i = 0; i < t * 2; i++)
-    //   p[i] = nullptr;
-    keys = std::vector<Item>(t * 2);
-    p = std::vector<BsNode *>(t * 2 + 1, nullptr);
+    keys = new Item[t * 2];
+    p = (BsNode **)malloc(sizeof(BsNode *) * (t * 2 + 1));
+    for (int i = 0; i < t * 2; i++)
+      p[i] = nullptr;
+    // keys = std::vector<Item>(t * 2);
+    // p = std::vector<BsNode *>(t * 2 + 1, nullptr);
   }
 };
 

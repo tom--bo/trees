@@ -231,9 +231,9 @@ void Bstartree::split_child(BsNode *x, short i) {
   mc.node_split++;
   // slide keys to right
   if (i < x->key_cnt) {
-    for(short j = x->key_cnt -1; j >= i; j--) {
-      x->keys[j+1] = x->keys[j];
-      x->p[j+2] = x->p[j+1];
+    for (short j = x->key_cnt - 1; j >= i; j--) {
+      x->keys[j + 1] = x->keys[j];
+      x->p[j + 2] = x->p[j + 1];
     }
   }
 
