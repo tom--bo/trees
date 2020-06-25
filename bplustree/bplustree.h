@@ -6,7 +6,6 @@
 
 class BpNode {
 public:
-  unsigned short height{0};
   BpNode *left{nullptr}, *right{nullptr};
   bool is_leaf{false};
   short key_cnt{0};
@@ -22,18 +21,12 @@ public:
     for (int i = 0; i < t * 2 + 1; i++)
       p[i] = nullptr;
   }
-};
-
-class BplustreeNodeManager {
-  unsigned int pool_cnt;
-  short t;
-  std::vector<BpNode *> node_pool;
-  std::queue<BpNode *> returned_queue;
-
-public:
-  BplustreeNodeManager(short t, int node_cnt);
-  BpNode *get_node();
-  void return_node(BpNode *n);
+  void reset(){
+    key_cnt = 0;
+    is_leaf = false;
+    left = nullptr;
+    right = nullptr;
+  }
 };
 
 struct BpMetricCounter {
@@ -49,7 +42,7 @@ private:
   short key_max; // 2*T
   short key_min; // T
   BpMetricCounter mc;
-  BplustreeNodeManager nm;
+  NodeManager<BpNode> nm;
 
 public:
   // Bplus-Tree-Create

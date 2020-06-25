@@ -3,41 +3,6 @@
 using namespace std;
 
 /*
- * BplustreeNodeManager
- */
-
-BplustreeNodeManager::BplustreeNodeManager(short t_num, int node_cnt)
-    : t{t_num} {
-  pool_cnt = 0;
-  node_pool = std::vector<BpNode *>(node_cnt);
-}
-
-BpNode *BplustreeNodeManager::get_node() {
-  BpNode *n;
-  if (!returned_queue.empty()) {
-    n = returned_queue.front();
-    returned_queue.pop();
-    return n;
-  }
-  if (pool_cnt != node_pool.size() - 1) {
-    n = new BpNode(t);
-    node_pool.push_back(n);
-    pool_cnt++;
-    return n;
-  }
-  return node_pool[pool_cnt++];
-}
-
-void BplustreeNodeManager::return_node(BpNode *n) {
-  n->key_cnt = 0;
-  n->is_leaf = false;
-  n->height = 0;
-  n->left = nullptr;
-  n->right = nullptr;
-  returned_queue.push(n);
-}
-
-/*
  * Bplustree
  */
 short find_left_most_key_or_right_bound_in_node(BpNode *x, unsigned long k) {
@@ -83,10 +48,9 @@ short find_right_most_pointer_in_node(BpNode *x, unsigned long k) {
 }
 
 Bplustree::Bplustree(short t_num)
-    : t{t_num}, nm{BplustreeNodeManager(t_num, 3000)} {
+    : t{t_num}, nm{NodeManager<BpNode>(t_num, 3000)} {
   key_max = 2 * t_num;
   key_min = t_num - 1;
-  nm = BplustreeNodeManager(t_num, 3000);
   mc = BpMetricCounter();
 
   BpNode *n = allocate_node();

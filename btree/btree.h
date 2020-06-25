@@ -4,30 +4,22 @@
 #include "tree_common.h"
 #endif
 
-class Node {
+class BNode {
 public:
   bool is_leaf{false};
   short key_cnt{0};
   Item *keys; // 2*T-1
-  Node **p;
-  Node(short t) {
+  BNode **p;
+  BNode(short t) {
     keys = new Item[t * 2 - 1];
-    p = (Node **)malloc(sizeof(Node *) * (t * 2));
+    p = (BNode **)malloc(sizeof(BNode *) * (t * 2));
     for (int i = 0; i < t * 2; i++)
       p[i] = nullptr;
   }
-};
-
-class BtreeNodeManager {
-  unsigned int pool_cnt;
-  short t;
-  std::vector<Node *> node_pool;
-  std::queue<Node *> returned_queue;
-
-public:
-  BtreeNodeManager(short t, int node_cnt);
-  Node *get_node();
-  void return_node(Node *n);
+  void reset() {
+    key_cnt = 0;
+    is_leaf = false;
+  }
 };
 
 struct BMetricCounter {
@@ -38,12 +30,12 @@ struct BMetricCounter {
 
 class Btree {
 private:
-  Node *root;
+  BNode *root;
   short t;
   short key_max; // 2*T-1
   short key_min; // T-1
   BMetricCounter mc;
-  BtreeNodeManager nm;
+  NodeManager<BNode> nm;
 
 public:
   // B-Tree-Create
@@ -59,14 +51,14 @@ public:
   void print_metrics() { mc.print(); }
 
 private:
-  Node *allocate_node();
-  void insert_nonfull(Node *x, Item k);
-  void split_child(Node *x, short i);
-  Item search(Node *x, unsigned long k);
-  unsigned long count_range(Node *x, unsigned long min_, unsigned long max_);
-  bool delete_key(Node *x, unsigned long k);
-  void tree_walk(Node *x, std::vector<Item> *v);
-  Node *max_leaf_node_in_subtree(Node *x);
-  Node *min_leaf_node_in_subtree(Node *x);
-  void merge(Node *x, short idx);
+  BNode *allocate_node();
+  void insert_nonfull(BNode *x, Item k);
+  void split_child(BNode *x, short i);
+  Item search(BNode *x, unsigned long k);
+  unsigned long count_range(BNode *x, unsigned long min_, unsigned long max_);
+  bool delete_key(BNode *x, unsigned long k);
+  void tree_walk(BNode *x, std::vector<Item> *v);
+  BNode *max_leaf_node_in_subtree(BNode *x);
+  BNode *min_leaf_node_in_subtree(BNode *x);
+  void merge(BNode *x, short idx);
 };

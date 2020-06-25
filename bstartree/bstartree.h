@@ -20,18 +20,10 @@ public:
     // keys = std::vector<Item>(t * 2);
     // p = std::vector<BsNode *>(t * 2 + 1, nullptr);
   }
-};
-
-class BsNodeManager {
-  unsigned int pool_cnt;
-  short t;
-  std::vector<BsNode *> node_pool;
-  std::queue<BsNode *> returned_queue;
-
-public:
-  BsNodeManager(short t, int node_cnt);
-  BsNode *get_node();
-  void return_node(BsNode *n);
+  void reset() {
+    key_cnt = 0;
+    is_leaf = false;
+  }
 };
 
 struct BsMetricCounter {
@@ -48,7 +40,7 @@ private:
   short split_key_min;
   // split_key_min => (t_num * 2 - 1) * 2 / 3;
   BsMetricCounter mc;
-  BsNodeManager nm;
+  NodeManager<BsNode> nm;
 
 public:
   // B-Tree-Create

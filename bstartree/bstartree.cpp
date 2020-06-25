@@ -3,37 +3,6 @@
 using namespace std;
 
 /*
- * BsNodeManager
- */
-
-BsNodeManager::BsNodeManager(short t_num, int node_cnt) : t{t_num} {
-  pool_cnt = 0;
-  node_pool = std::vector<BsNode *>(node_cnt);
-}
-
-BsNode *BsNodeManager::get_node() {
-  BsNode *n;
-  if (!returned_queue.empty()) {
-    n = returned_queue.front();
-    returned_queue.pop();
-    return n;
-  }
-  if (pool_cnt != node_pool.size() - 1) {
-    n = new BsNode(t);
-    node_pool.push_back(n);
-    pool_cnt++;
-    return n;
-  }
-  return node_pool[pool_cnt++];
-}
-
-void BsNodeManager::return_node(BsNode *n) {
-  n->key_cnt = 0;
-  n->is_leaf = false;
-  returned_queue.push(n);
-}
-
-/*
  * Bstartree
  */
 
@@ -63,11 +32,10 @@ short find_right_most_key_or_left_bound_in_node(BsNode *x, unsigned long k) {
   return l;
 }
 
-Bstartree::Bstartree(short t_num) : nm{BsNodeManager(t_num, 3000)} {
+Bstartree::Bstartree(short t_num) : nm{NodeManager<BsNode>(t_num, 3000)} {
   key_max = t_num * 2;
   key_min = t_num - 1;
   split_key_min = (t_num * 2 - 1) * 2 / 3;
-  nm = BsNodeManager(t_num, 3000);
   mc = BsMetricCounter();
 
   BsNode *n = allocate_node();
