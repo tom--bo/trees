@@ -31,10 +31,10 @@ short find_right_most_key_or_left_bound_in_node(BNode *x, unsigned long k) {
   return l;
 }
 
-Btree::Btree(short t_num) : t{t_num}, nm{NodeManager<BNode>(t_num, 3000)} {
+Btree::Btree(short t_num)
+    : t{t_num}, nm{NodeManager<BNode>(t_num, 3000)}, mc{MetricCounter()} {
   key_max = 2 * t_num - 1;
   key_min = t_num - 1;
-  mc = BMetricCounter();
 
   BNode *n = allocate_node();
   n->is_leaf = true;
@@ -42,7 +42,10 @@ Btree::Btree(short t_num) : t{t_num}, nm{NodeManager<BNode>(t_num, 3000)} {
 }
 
 // Allocate-Node
-BNode *Btree::allocate_node() { return nm.get_node(); }
+BNode *Btree::allocate_node() {
+  mc.node_count++;
+  return nm.get_node();
+}
 
 // insert
 void Btree::insert(Item k) {
@@ -181,6 +184,7 @@ void Btree::merge(BNode *x, short idx) {
   y->p[y->key_cnt] = z->p[z->key_cnt];
 
   nm.return_node(z);
+  mc.node_count--;
 }
 
 bool Btree::delete_key(unsigned long k) {
@@ -195,6 +199,7 @@ bool Btree::delete_key(unsigned long k) {
     BNode *y = root->p[0];
     merge(x, 0);
     nm.return_node(x);
+    mc.node_count--;
     root = y;
   }
 

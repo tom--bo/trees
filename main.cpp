@@ -2,7 +2,6 @@
 #include "bplustree.h"
 #include "btree.h"
 #include <bits/stdc++.h>
-#include <stdlib.h>
 #include <unistd.h>
 using namespace std;
 using namespace std::chrono;

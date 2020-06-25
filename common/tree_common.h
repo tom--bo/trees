@@ -1,3 +1,6 @@
+/*
+ * Item
+ */
 struct Item {
   unsigned long key;
   unsigned long val;
@@ -7,9 +10,21 @@ struct Item {
 };
 
 /*
+ * MetricCounter
+ */
+struct MetricCounter {
+  unsigned long node_count{0};
+  unsigned long node_merge{0};
+  unsigned long node_split{0};
+  void print() {
+    printf("NodeCnt: %lu, Merge: %lu, Split: %lu\n", node_count, node_merge,
+           node_split);
+  }
+};
+
+/*
  * NodeManager
  */
-
 template <class T> class NodeManager {
   unsigned int pool_cnt;
   short t;

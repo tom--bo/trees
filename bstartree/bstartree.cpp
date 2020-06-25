@@ -32,11 +32,11 @@ short find_right_most_key_or_left_bound_in_node(BsNode *x, unsigned long k) {
   return l;
 }
 
-Bstartree::Bstartree(short t_num) : nm{NodeManager<BsNode>(t_num, 3000)} {
+Bstartree::Bstartree(short t_num)
+    : nm{NodeManager<BsNode>(t_num, 3000)}, mc{MetricCounter()} {
   key_max = t_num * 2;
   key_min = t_num - 1;
   split_key_min = (t_num * 2 - 1) * 2 / 3;
-  mc = BsMetricCounter();
 
   BsNode *n = allocate_node();
   n->is_leaf = true;
@@ -44,7 +44,10 @@ Bstartree::Bstartree(short t_num) : nm{NodeManager<BsNode>(t_num, 3000)} {
 }
 
 // Allocate-BsNode
-BsNode *Bstartree::allocate_node() { return nm.get_node(); }
+BsNode *Bstartree::allocate_node() {
+  mc.node_count++;
+  return nm.get_node();
+}
 
 // insert
 void Bstartree::insert(Item k) {
@@ -292,6 +295,7 @@ void Bstartree::merge(BsNode *x, short idx) {
   y->p[y->key_cnt] = z->p[z->key_cnt];
 
   nm.return_node(z);
+  mc.node_count--;
 }
 
 bool Bstartree::delete_key(unsigned long k) {
@@ -306,6 +310,7 @@ bool Bstartree::delete_key(unsigned long k) {
     BsNode *y = root->p[0];
     merge(x, 0);
     nm.return_node(x);
+    mc.node_count--;
     root = y;
   }
 

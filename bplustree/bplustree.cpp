@@ -48,10 +48,9 @@ short find_right_most_pointer_in_node(BpNode *x, unsigned long k) {
 }
 
 Bplustree::Bplustree(short t_num)
-    : t{t_num}, nm{NodeManager<BpNode>(t_num, 3000)} {
+    : t{t_num}, nm{NodeManager<BpNode>(t_num, 3000)}, mc{MetricCounter()} {
   key_max = 2 * t_num;
   key_min = t_num - 1;
-  mc = BpMetricCounter();
 
   BpNode *n = allocate_node();
   n->is_leaf = true;
@@ -59,7 +58,10 @@ Bplustree::Bplustree(short t_num)
 }
 
 // Allocate-BpNode
-BpNode *Bplustree::allocate_node() { return nm.get_node(); }
+BpNode *Bplustree::allocate_node() {
+  mc.node_count++;
+  return nm.get_node();
+}
 
 // insert
 void Bplustree::insert(Item k) {
@@ -266,6 +268,7 @@ void Bplustree::merge(BpNode *x, short idx) {
   }
 
   nm.return_node(z);
+  mc.node_count--;
 }
 
 bool Bplustree::delete_key(unsigned long k) {
@@ -280,6 +283,7 @@ bool Bplustree::delete_key(unsigned long k) {
     BpNode *y = root->p[0];
     merge(x, 0);
     nm.return_node(x);
+    mc.node_count--;
     root = y;
   }
 

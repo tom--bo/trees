@@ -21,18 +21,12 @@ public:
     for (int i = 0; i < t * 2 + 1; i++)
       p[i] = nullptr;
   }
-  void reset(){
+  void reset() {
     key_cnt = 0;
     is_leaf = false;
     left = nullptr;
     right = nullptr;
   }
-};
-
-struct BpMetricCounter {
-  int node_merge{0};
-  int node_split{0};
-  void print() { printf("Merge: %d, Split: %d\n", node_merge, node_split); }
 };
 
 class Bplustree {
@@ -41,7 +35,7 @@ private:
   short t;
   short key_max; // 2*T
   short key_min; // T
-  BpMetricCounter mc;
+  MetricCounter mc;
   NodeManager<BpNode> nm;
 
 public:
@@ -56,6 +50,7 @@ public:
   }
   void tree_walk(std::vector<Item> *v) { tree_walk(root, v); }
   void print_metrics() { mc.print(); }
+  MetricCounter get_metrics() { return mc; };
 
 private:
   BpNode *allocate_node();

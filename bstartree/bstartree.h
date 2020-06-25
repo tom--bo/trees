@@ -26,12 +26,6 @@ public:
   }
 };
 
-struct BsMetricCounter {
-  int node_merge{0};
-  int node_split{0};
-  void print() { printf("Merge: %d, Split: %d\n", node_merge, node_split); }
-};
-
 class Bstartree {
 private:
   BsNode *root;
@@ -39,7 +33,7 @@ private:
   short key_min; // T-1
   short split_key_min;
   // split_key_min => (t_num * 2 - 1) * 2 / 3;
-  BsMetricCounter mc;
+  MetricCounter mc;
   NodeManager<BsNode> nm;
 
 public:
@@ -54,6 +48,7 @@ public:
   }
   void tree_walk(std::vector<Item> *v) { tree_walk(root, v); }
   void print_metrics() { mc.print(); }
+  MetricCounter get_metrics() { return mc; };
 
 private:
   BsNode *allocate_node();
