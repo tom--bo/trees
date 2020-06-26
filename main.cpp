@@ -1,5 +1,5 @@
-#include "bstartree.h"
 #include "bplustree.h"
+#include "bstartree.h"
 #include "btree.h"
 #include <bits/stdc++.h>
 #include <unistd.h>
@@ -8,9 +8,10 @@ using namespace std::chrono;
 
 template <class T> class TreeKit {
 public:
-  void bench(short int t, int exp_cnt, unsigned long ope_cnt, int mod,
-             unsigned long del_rate) {
+  void bench(bool debug, short int t, int exp_cnt, unsigned long ope_cnt,
+             int mod, unsigned long del_rate) {
     long total_time = 0;
+    MetricCounter total_mc = MetricCounter();
     for (int i = 0; i < exp_cnt; i++) {
       // init
       T tree(t);
@@ -32,6 +33,10 @@ public:
       nanoseconds spent_time = duration_cast<nanoseconds>(finish - start);
       long st = spent_time.count();
       total_time += st;
+      MetricCounter mc = tree.get_metrics();
+      total_mc.node_count += mc.node_count;
+      total_mc.node_merge += mc.node_merge;
+      total_mc.node_split += mc.node_split;
 
       // end
       // tree.print_metrics();
@@ -41,6 +46,11 @@ public:
     long ave_time = total_time / exp_cnt;
     printf("T: %4d, ope_cnt: %lu, mod: %d, del(%%): %lu, Ave: %3ld.%06ld ms\n",
            t, ope_cnt, mod, del_rate, ave_time / 1000000, ave_time % 1000000);
+    if (debug) {
+      printf("Ave_Node_cnt: %6lu, Ave_Node_merge: %6lu, Ave_Node_split: %6lu\n",
+             total_mc.node_count / exp_cnt, total_mc.node_merge / exp_cnt,
+             total_mc.node_split / exp_cnt);
+    }
   }
 
   void test(string filename, short int t, int num) {
@@ -153,7 +163,8 @@ int main(int argc, char *argv[]) {
   // get options and args
   int opt;
   bool bench = false, test = false, simple_test = false;
-  while ((opt = getopt(argc, argv, "stbh")) != -1) {
+  bool debug = false;
+  while ((opt = getopt(argc, argv, "bdhst")) != -1) {
     switch (opt) {
     case 'b':
       bench = true;
@@ -163,6 +174,9 @@ int main(int argc, char *argv[]) {
       break;
     case 't':
       test = true;
+      break;
+    case 'd':
+      debug = true;
       break;
 
     case 'h':
@@ -244,36 +258,36 @@ int main(int argc, char *argv[]) {
     if (tree == "b") {
       auto tr = TreeKit<Btree>();
       for (unsigned long i = 0; i < t.size(); i++) {
-        tr.bench(t[i], 5, 100000, 2000, 10);
+        tr.bench(debug, t[i], 10, 100000, 2000, 10);
       }
       for (unsigned long i = 0; i < t.size(); i++) {
-        tr.bench(t[i], 5, 500000, 1000, 30);
+        tr.bench(debug, t[i], 10, 500000, 1000, 30);
       }
       for (unsigned long i = 0; i < t.size(); i++) {
-        tr.bench(t[i], 5, 1000000, 5000, 40);
+        tr.bench(debug, t[i], 10, 1000000, 5000, 40);
       }
     } else if (tree == "bp") {
       auto tr = TreeKit<Bplustree>();
       for (unsigned long i = 0; i < t.size(); i++) {
-        tr.bench(t[i], 5, 100000, 2000, 10);
+        tr.bench(debug, t[i], 10, 100000, 2000, 10);
       }
       for (unsigned long i = 0; i < t.size(); i++) {
-        tr.bench(t[i], 5, 500000, 1000, 30);
+        tr.bench(debug, t[i], 10, 500000, 1000, 30);
       }
       for (unsigned long i = 0; i < t.size(); i++) {
-        tr.bench(t[i], 5, 1000000, 5000, 40);
+        tr.bench(debug, t[i], 10, 1000000, 5000, 40);
       }
 
     } else if (tree == "bs") {
       auto tr = TreeKit<Bstartree>();
       for (unsigned long i = 0; i < t.size(); i++) {
-        tr.bench(t[i], 5, 100000, 2000, 10);
+        tr.bench(debug, t[i], 10, 100000, 2000, 10);
       }
       for (unsigned long i = 0; i < t.size(); i++) {
-        tr.bench(t[i], 5, 500000, 1000, 30);
+        tr.bench(debug, t[i], 10, 500000, 1000, 30);
       }
       for (unsigned long i = 0; i < t.size(); i++) {
-        tr.bench(t[i], 5, 1000000, 5000, 40);
+        tr.bench(debug, t[i], 10, 1000000, 5000, 40);
       }
     }
   }

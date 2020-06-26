@@ -33,7 +33,7 @@ short find_right_most_key_or_left_bound_in_node(BsNode *x, unsigned long k) {
 }
 
 Bstartree::Bstartree(short t_num)
-    : nm{NodeManager<BsNode>(t_num, 3000)}, mc{MetricCounter()} {
+    : mc{MetricCounter()}, nm{NodeManager<BsNode>(t_num, 3000)} {
   key_max = t_num * 2;
   key_min = t_num - 1;
   split_key_min = (t_num * 2 - 1) * 2 / 3;
