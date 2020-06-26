@@ -48,7 +48,7 @@ short find_right_most_pointer_in_node(BpNode *x, unsigned long k) {
 }
 
 Bplustree::Bplustree(short t_num)
-    : t{t_num}, mc{MetricCounter()}, nm{NodeManager<BpNode>(t_num, 3000)} {
+    : mc{MetricCounter()}, nm{NodeManager<BpNode>(t_num, 3000)} {
   key_max = 2 * t_num;
   key_min = t_num - 1;
 
@@ -136,13 +136,13 @@ void Bplustree::split_child(BpNode *x, short i) {
     // move (second-half - 1) nodes in y
     move_cnt = key_min;
     for (unsigned short j = 0; j < move_cnt; j++) {
-      z->keys[j] = y->keys[j + t + 1];
+      z->keys[j] = y->keys[j + key_min + 2];
     }
     z->key_cnt = move_cnt;
     // move second half pointer if y is not leaf-node
     for (unsigned short j = 0; j < move_cnt + 1; j++) {
-      z->p[j] = y->p[j + t + 1];
-      y->p[j + t + 1] = nullptr;
+      z->p[j] = y->p[j + key_min + 2];
+      y->p[j + key_min + 2] = nullptr;
     }
   }
 

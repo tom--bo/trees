@@ -25,7 +25,6 @@ public:
 class Btree {
 private:
   BNode *root;
-  short t;
   short key_max; // 2*T-1
   short key_min; // T-1
   MetricCounter mc;

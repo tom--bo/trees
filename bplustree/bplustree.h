@@ -32,7 +32,6 @@ public:
 class Bplustree {
 private:
   BpNode *root;
-  short t;
   short key_max; // 2*T
   short key_min; // T
   MetricCounter mc;

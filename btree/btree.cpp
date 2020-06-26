@@ -32,7 +32,7 @@ short find_right_most_key_or_left_bound_in_node(BNode *x, unsigned long k) {
 }
 
 Btree::Btree(short t_num)
-    : t{t_num}, mc{MetricCounter()}, nm{NodeManager<BNode>(t_num, 3000)} {
+    : mc{MetricCounter()}, nm{NodeManager<BNode>(t_num, 3000)} {
   key_max = 2 * t_num - 1;
   key_min = t_num - 1;
 
@@ -90,14 +90,14 @@ void Btree::split_child(BNode *x, short i) {
 
   // move second half nodes in y
   for (unsigned short j = 0; j < key_min; j++) {
-    z->keys[j] = y->keys[j + t];
+    z->keys[j] = y->keys[j + key_min + 1];
   }
   z->key_cnt = key_min;
   // move second half pinter if y is not leaf-node
   if (!y->is_leaf) {
-    for (unsigned short j = 0; j < t; j++) {
-      z->p[j] = y->p[j + t];
-      y->p[j + t] = nullptr;
+    for (unsigned short j = 0; j < key_min + 1; j++) {
+      z->p[j] = y->p[j + key_min + 1];
+      y->p[j + key_min + 1] = nullptr;
     }
   }
 
@@ -108,7 +108,7 @@ void Btree::split_child(BNode *x, short i) {
   }
   // move up center-key of y
   x->p[i + 1] = z;
-  x->keys[i] = y->keys[t - 1];
+  x->keys[i] = y->keys[key_min];
   y->key_cnt = key_min;
   x->key_cnt++;
 }
