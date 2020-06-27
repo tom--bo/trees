@@ -41,6 +41,10 @@ Btree::Btree(short t_num)
   root = n;
 }
 
+void Btree::print_index_type() {
+  cout << "<< B tree >>" << endl;
+}
+
 // Allocate-Node
 BNode *Btree::allocate_node() {
   mc.node_count++;
@@ -114,25 +118,21 @@ void Btree::split_child(BNode *x, short i) {
 }
 
 Item Btree::search(BNode *x, unsigned long k) {
-  short i = 0;
-  // search key range or key itself
-  int l = -1, m, r = x->key_cnt;
-  while (r - l > 1) {
-    m = (l + r) / 2;
-    if (k <= x->keys[m].key) {
-      r = m;
-    } else {
-      l = m;
+  short l = find_left_most_key_or_right_bound_in_node(x, k);
+  short r = find_right_most_key_or_left_bound_in_node(x, k);
+
+  for (short i = l; i <= r + 1 && i <= x->key_cnt; i++) {
+    if (i < x->key_cnt && k == x->keys[i].key) {
+      return x->keys[i];
+    } else if (x->is_leaf) {
+      continue;
+    }
+    Item it = search(x->p[i], k);
+    if (it.key != 0 && it.val != 0) {
+      return it;
     }
   }
-  i = r;
-
-  if (i <= x->key_cnt && k == x->keys[i].key) {
-    return x->keys[i];
-  } else if (x->is_leaf || !x->p[i]) {
-    return Item{0, 0}; // return (key: 0, val: 0)
-  }
-  return search(x->p[i], k);
+  return Item{0, 0}; // return (key: 0, val: 0)
 }
 
 unsigned long Btree::count_range(BNode *x, unsigned long min_,
