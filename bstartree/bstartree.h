@@ -39,6 +39,7 @@ private:
 public:
   // B-Tree-Create
   Bstartree(short t_num);
+  void print_index_type();
   void insert(Item k);
   bool delete_key(unsigned long k);
   Item search(unsigned long k) { return search(root, k); }

@@ -43,6 +43,10 @@ Bstartree::Bstartree(short t_num)
   root = n;
 }
 
+void Bstartree::print_index_type() {
+  cout << "<< B* tree >>" << endl;
+}
+
 // Allocate-BsNode
 BsNode *Bstartree::allocate_node() {
   mc.node_count++;

@@ -57,6 +57,10 @@ Bplustree::Bplustree(short t_num)
   root = n;
 }
 
+void Bplustree::print_index_type() {
+  cout << "<< B+ tree >>" << endl;
+}
+
 // Allocate-BpNode
 BpNode *Bplustree::allocate_node() {
   mc.node_count++;

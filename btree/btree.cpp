@@ -41,6 +41,10 @@ Btree::Btree(short t_num)
   root = n;
 }
 
+void Btree::print_index_type() {
+  cout << "<< B tree >>" << endl;
+}
+
 // Allocate-Node
 BNode *Btree::allocate_node() {
   mc.node_count++;
