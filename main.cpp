@@ -33,9 +33,10 @@ public:
   void exec_benchmark(bool debug) {
     cout << "=== BENCH START ===" << endl;
     vector<int> t = {4, 16, 64, 256};
-    bench(debug, t, 10, 1000000, 10000, 0);
-    bench(debug, t, 10, 1000000, 10000, 10);
-    bench(debug, t, 10, 1000000, 10000, 20);
+    bench(debug, t, 10, 1000000, 1000, 100000, 0, 0, 100, 0);
+    bench(debug, t, 10, 1000000, 1000, 100000, 0, 0, 90, 10);
+    bench(debug, t, 10, 1000000, 1000, 100000, 0, 0, 80, 20);
+    bench(debug, t, 10, 200000, 1000, 100000, 19, 1, 70, 10);
   }
 
   void exec_test(bool debug) {
@@ -66,9 +67,13 @@ public:
   }
 
 private:
-  void bench(bool debug, vector<int> vt, int exp_cnt, unsigned long ope_cnt, int mod,
-             unsigned long del_rate) {
-    printf("\nope_cnt: %lu, mod: %d, del(%%): %lu\n", ope_cnt, mod, del_rate);
+  void bench(bool debug, vector<int> vt, int exp_cnt, unsigned long ope_cnt,
+             unsigned int initial_insert, int mod, unsigned long select_pct,
+             unsigned long range_pct, unsigned long insert_pct,
+             unsigned long del_pct) {
+    printf("\nope_cnt: %lu, mod: %d, select(%%): %lu, range(%%): %lu, "
+           "insert(%%): %lu, del(%%): %lu\n",
+           ope_cnt, mod, select_pct, range_pct, insert_pct, del_pct);
     cout << "  T, Ave_total_time(ms)";
     if (debug) {
       cout << ", Ave_node_cnt, Ave_node_merge, Ave_node_split";
@@ -88,12 +93,31 @@ private:
         steady_clock::time_point start = steady_clock::now();
 
         // start benchmark
-        for (unsigned long j = 0; j < ope_cnt; j++) {
+        unsigned short select_ = select_pct;
+        unsigned short range_ = select_ + range_pct;
+        unsigned short insert_ = range_ + insert_pct;
+        if (insert_ + del_pct != 100) {
+          cout << "select, range, insert, del rate setting is invalid!" << endl;
+          return;
+        }
+        for (unsigned j = 0; j < initial_insert; j++) {
           unsigned long d = mt() % mod;
-          if (mt() % 100 >= del_rate) {
-            tree.insert(Item{d, j});
+          tree.insert(Item{d, j});
+        }
+        for (unsigned long j = 0; j < ope_cnt; j++) {
+          unsigned long d1 = mt() % mod;
+          unsigned long threshold = mt() % 100;
+          if (threshold < select_) {
+            tree.search(d1);
+          } else if (threshold < range_) {
+            unsigned long d2 = mt() % mod;
+            if (d1 > d2)
+              swap(d1, d2);
+            tree.count_range(d1, d2);
+          } else if (threshold < insert_) {
+            tree.insert(Item{d1, j});
           } else {
-            tree.delete_key(d);
+            tree.delete_key(d1);
           }
         }
 
@@ -177,7 +201,8 @@ private:
       if ((mp[i] > 0 && a.key == 0) || (mp[i] == 0 && a.key > 0)) {
         cout << "case " << num << " failed: search(" << i << ") is different!"
              << endl;
-        cout << "expected: " << (mp[i] != 0) << ", returned: " << (tr.search(i).key != 0) << endl;
+        cout << "expected: " << (mp[i] != 0)
+             << ", returned: " << (tr.search(i).key != 0) << endl;
         return 1;
       }
     }
