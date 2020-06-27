@@ -49,7 +49,7 @@ short find_right_most_pointer_in_node(BpNode *x, unsigned long k) {
 
 Bplustree::Bplustree(short t_num)
     : mc{MetricCounter()}, nm{NodeManager<BpNode>(t_num, 3000)} {
-  key_max = 2 * t_num;
+  key_max = t_num * 2;
   key_min = t_num - 1;
 
   BpNode *n = allocate_node();
