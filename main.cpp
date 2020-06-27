@@ -171,6 +171,16 @@ private:
         return 1;
       }
     }
+    // search test
+    for (unsigned long i = 1; i <= data_max; i++) {
+      Item a = tr.search(i);
+      if ((mp[i] > 0 && a.key == 0) || (mp[i] == 0 && a.key > 0)) {
+        cout << "case " << num << " failed: search(" << i << ") is different!"
+             << endl;
+        cout << "expected: " << (mp[i] != 0) << ", returned: " << (tr.search(i).key != 0) << endl;
+        return 1;
+      }
+    }
 
     // count range test
     for (unsigned long i = 0; i < 10; i++) {
