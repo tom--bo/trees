@@ -34,6 +34,10 @@ public:
   // B-Tree-Create
   Btree(short t_num);
   void print_index_type();
+  void update_metric();
+  unsigned get_key_max() {
+    return key_max;
+  };
   void insert(Item k);
   bool delete_key(unsigned long k);
   Item search(unsigned long k) { return search(root, k); }
@@ -53,6 +57,7 @@ private:
   unsigned long count_range(BNode *x, unsigned long min_, unsigned long max_);
   bool delete_key(BNode *x, unsigned long k);
   void tree_walk(BNode *x, std::vector<Item> *v);
+  void tree_walk_for_metric(BNode *x);
   BNode *max_leaf_node_in_subtree(BNode *x);
   BNode *min_leaf_node_in_subtree(BNode *x);
   void merge(BNode *x, short idx);

@@ -41,6 +41,10 @@ public:
   // Bplus-Tree-Create
   Bplustree(short t_num);
   void print_index_type();
+  void update_metric();
+  unsigned get_key_max() {
+    return key_max;
+  };
   void insert(Item k);
   bool delete_key(unsigned long k);
   Item search(unsigned long k) { return search(root, k); }
@@ -61,6 +65,7 @@ private:
   unsigned long count_once(BpNode *x, unsigned long k);
   bool delete_key(BpNode *x, unsigned long k);
   void tree_walk(BpNode *x, std::vector<Item> *v);
+  void tree_walk_for_metric(BpNode *x);
   BpNode *max_leaf_node_in_subtree(BpNode *x);
   BpNode *min_leaf_node_in_subtree(BpNode *x);
   Item min_item_in_subtree(BpNode *x);

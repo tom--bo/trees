@@ -385,6 +385,34 @@ bool Bplustree::delete_key(BpNode *x, unsigned long k) {
   return true;
 }
 
+void Bplustree::update_metric() {
+  // height
+  BpNode *x = this->root;
+  mc.height = 1;
+  while(!x->is_leaf) {
+    x = x->p[0];
+    mc.height += 1;
+  }
+
+  // node count & filling rate
+  x = this->root;
+  tree_walk_for_metric(x);
+}
+
+void Bplustree::tree_walk_for_metric(BpNode *x) {
+  if (x->is_leaf) {
+    mc.leaf_node_cnt += 1;
+    mc.leaf_node_keys_cnt += x->key_cnt;
+    return;
+  } else {
+    mc.intermediate_node_cnt += 1;
+    mc.intermediate_node_keys_cnt += x->key_cnt;
+    for (short i = 0; i < x->key_cnt; i++) {
+      tree_walk_for_metric(x->p[i]);
+    }
+    tree_walk_for_metric(x->p[x->key_cnt]);
+  }
+}
 void Bplustree::tree_walk(BpNode *x, vector<Item> *v) {
   if (x->is_leaf) {
     for (short i = 0; i < x->key_cnt; i++) {

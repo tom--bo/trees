@@ -13,11 +13,17 @@ struct Item {
  * MetricCounter
  */
 struct MetricCounter {
-  unsigned long node_count{0};
-  unsigned long node_merge{0};
-  unsigned long node_split{0};
+  double height{0};
+  double node_count{0};
+  double node_merge{0};
+  double node_split{0};
+  double intermediate_node_cnt{0};
+  double leaf_node_cnt{0};
+  double intermediate_node_keys_cnt{0};
+  double leaf_node_keys_cnt{0};
+
   void print() {
-    printf("NodeCnt: %lu, Merge: %lu, Split: %lu\n", node_count, node_merge,
+    printf("NodeCnt: %.1f, Merge: %.1f, Split: %.1f\n", node_count, node_merge,
            node_split);
   }
 };

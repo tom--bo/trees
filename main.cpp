@@ -76,7 +76,9 @@ private:
            ope_cnt, mod, select_pct, range_pct, insert_pct, del_pct);
     cout << "  T, Ave_total_time(ms)";
     if (debug) {
-      cout << ", Ave_node_cnt, Ave_node_merge, Ave_node_split";
+      cout << ", Ave_node_cnt, Ave_inter_node, Ave_leaf_node, "
+              "Ave_inter_fill_rate, Ave_leaf_fill_rate, Ave_node_merge, "
+              "Ave_node_split, Ave_tree_height";
     }
     cout << endl;
 
@@ -85,9 +87,11 @@ private:
 
       long total_time = 0;
       MetricCounter total_mc = MetricCounter();
+      unsigned key_max;
       for (int j = 0; j < exp_cnt; j++) {
         // init
         T tree(vt[i]);
+        key_max = tree.get_key_max();
         mt19937_64 mt(j);
 
         steady_clock::time_point start = steady_clock::now();
@@ -100,10 +104,13 @@ private:
           cout << "select, range, insert, del rate setting is invalid!" << endl;
           return;
         }
+        // initial insert
         for (unsigned j = 0; j < initial_insert; j++) {
           unsigned long d = mt() % mod;
           tree.insert(Item{d, j});
         }
+
+        // operations in experiment
         for (unsigned long j = 0; j < ope_cnt; j++) {
           unsigned long d1 = mt() % mod;
           unsigned long threshold = mt() % 100;
@@ -125,32 +132,34 @@ private:
         nanoseconds spent_time = duration_cast<nanoseconds>(finish - start);
         long st = spent_time.count();
         total_time += st;
+        tree.update_metric();
         MetricCounter mc = tree.get_metrics();
         total_mc.node_count += mc.node_count;
+        total_mc.intermediate_node_cnt += mc.intermediate_node_cnt;
+        total_mc.intermediate_node_keys_cnt += mc.intermediate_node_keys_cnt;
+        total_mc.leaf_node_cnt += mc.leaf_node_cnt;
+        total_mc.leaf_node_keys_cnt += mc.leaf_node_keys_cnt;
         total_mc.node_merge += mc.node_merge;
         total_mc.node_split += mc.node_split;
-
+        total_mc.height += mc.height;
         // end
         // delete tree;
       }
 
       long ave_time = total_time / exp_cnt;
-      /*
-      printf(
-          "T: %4d, ope_cnt: %lu, mod: %d, del(%%): %lu, Ave: %3ld.%06ld ms\n",
-          vt[i], ope_cnt, mod, del_rate, ave_time / 1000000,
-          ave_time % 1000000);
-      */
       printf("%3d, %11ld.%06ld", vt[i], ave_time / 1000000, ave_time % 1000000);
       if (debug) {
-        /*
         printf(
-            "Ave_Node_cnt: %6lu, Ave_Node_merge: %6lu, Ave_Node_split: %6lu\n",
-            total_mc.node_count / exp_cnt, total_mc.node_merge / exp_cnt,
-            total_mc.node_split / exp_cnt);
-        */
-        printf(", %12lu, %14lu, %14lu", total_mc.node_count / exp_cnt,
-               total_mc.node_merge / exp_cnt, total_mc.node_split / exp_cnt);
+            ", %12.1f, %14.1f, %13.1f, %19.1f, %18.1f, %14.1f, %14.1f, %15.1f",
+            total_mc.node_count / exp_cnt,
+            total_mc.intermediate_node_cnt / exp_cnt,
+            total_mc.leaf_node_cnt / exp_cnt,
+            total_mc.intermediate_node_keys_cnt /
+                total_mc.intermediate_node_cnt / key_max * 100,
+            total_mc.leaf_node_keys_cnt / total_mc.leaf_node_cnt / key_max *
+                100,
+            total_mc.node_merge / exp_cnt, total_mc.node_split / exp_cnt,
+            total_mc.height / exp_cnt);
       }
       cout << endl;
     }
