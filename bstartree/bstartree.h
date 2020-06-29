@@ -26,7 +26,7 @@ public:
   }
 };
 
-class Bstartree {
+class Bstartree : public Indexable {
 private:
   BsNode *root;
   short key_max; // T*2

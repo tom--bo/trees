@@ -64,3 +64,18 @@ public:
     returned_queue.push(n);
   }
 };
+
+class Indexable {
+public:
+  virtual void print_index_type() = 0;
+  virtual void update_metric() = 0;
+  virtual unsigned get_key_max() = 0;
+  virtual void insert(Item k) = 0;
+  virtual bool delete_key(unsigned long k) = 0;
+  virtual Item search(unsigned long k) = 0;
+  virtual unsigned long count(unsigned long k) = 0;
+  virtual unsigned long count_range(unsigned long min_, unsigned long max_) = 0;
+  virtual void tree_walk(std::vector<Item> *v) = 0;
+  virtual void print_metrics() = 0;
+  virtual MetricCounter get_metrics() = 0;
+};

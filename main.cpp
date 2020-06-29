@@ -6,6 +6,12 @@
 using namespace std;
 using namespace std::chrono;
 
+enum IndexType {
+  B,
+  Bplus,
+  Bstar,
+};
+
 string getTestFilename(int n) {
   ios::fmtflags curret_flag = std::cout.flags();
 
@@ -28,8 +34,12 @@ string getSimpleTestFilename(int n) {
   return s;
 }
 
-template <class T> class TestManager {
+class TestManager {
 public:
+  IndexType index_type;
+
+  TestManager(IndexType it) : index_type{it} {};
+
   void exec_benchmark(bool debug) {
     cout << "=== BENCH START ===" << endl;
     vector<int> t = {4, 16, 64, 256};
@@ -67,6 +77,17 @@ public:
   }
 
 private:
+  Indexable *buildTree(IndexType it, short int t) {
+    switch (it) {
+    case 0:
+      return new Btree(t);
+    case 1:
+      return new Bplustree(t);
+    case 2:
+      return new Bstartree(t);
+    }
+  }
+
   void bench(bool debug, vector<int> vt, int exp_cnt, unsigned long ope_cnt,
              unsigned int initial_insert, int mod, unsigned long select_pct,
              unsigned long range_pct, unsigned long insert_pct,
@@ -84,14 +105,13 @@ private:
 
     // vector<short int> vt = {2, 4, 8, 16, 32, 64, 128};
     for (unsigned int i = 0; i < vt.size(); i++) {
-
       long total_time = 0;
       MetricCounter total_mc = MetricCounter();
       unsigned key_max;
       for (int j = 0; j < exp_cnt; j++) {
         // init
-        T tree(vt[i]);
-        key_max = tree.get_key_max();
+        Indexable *tree = buildTree(index_type, vt[i]);
+        key_max = tree->get_key_max();
         mt19937_64 mt(j);
 
         steady_clock::time_point start = steady_clock::now();
@@ -107,7 +127,7 @@ private:
         // initial insert
         for (unsigned j = 0; j < initial_insert; j++) {
           unsigned long d = mt() % mod;
-          tree.insert(Item{d, j});
+          tree->insert(Item{d, j});
         }
 
         // operations in experiment
@@ -115,16 +135,16 @@ private:
           unsigned long d1 = mt() % mod;
           unsigned long threshold = mt() % 100;
           if (threshold < select_) {
-            tree.search(d1);
+            tree->search(d1);
           } else if (threshold < range_) {
             unsigned long d2 = mt() % mod;
             if (d1 > d2)
               swap(d1, d2);
-            tree.count_range(d1, d2);
+            tree->count_range(d1, d2);
           } else if (threshold < insert_) {
-            tree.insert(Item{d1, j});
+            tree->insert(Item{d1, j});
           } else {
-            tree.delete_key(d1);
+            tree->delete_key(d1);
           }
         }
 
@@ -132,8 +152,8 @@ private:
         nanoseconds spent_time = duration_cast<nanoseconds>(finish - start);
         long st = spent_time.count();
         total_time += st;
-        tree.update_metric();
-        MetricCounter mc = tree.get_metrics();
+        tree->update_metric();
+        MetricCounter mc = tree->get_metrics();
         total_mc.node_count += mc.node_count;
         total_mc.intermediate_node_cnt += mc.intermediate_node_cnt;
         total_mc.intermediate_node_keys_cnt += mc.intermediate_node_keys_cnt;
@@ -172,7 +192,7 @@ private:
     unsigned long data, i = 0;
     unsigned long data_max = 0;
 
-    T tr(t);
+    Indexable *tr = buildTree(index_type, t);
     auto mp = map<unsigned long, unsigned long>();
 
     while (cin >> flag >> data) {
@@ -181,10 +201,10 @@ private:
       i++;
       if (flag == 1) { // 1: add
         Item item = Item{data, i};
-        tr.insert(item);
+        tr->insert(item);
         mp[data]++;
       } else { // 2: delete
-        tr.delete_key(data);
+        tr->delete_key(data);
         if (mp[data] != 0) {
           mp[data]--;
         }
@@ -193,25 +213,25 @@ private:
 
     // check
     vector<Item> c;
-    tr.tree_walk(&c);
+    tr->tree_walk(&c);
 
     // count function test
     for (unsigned long i = 0; i <= data_max; i++) {
-      if (tr.count(i) != mp[i]) {
+      if (tr->count(i) != mp[i]) {
         cout << "case " << num << " failed: count(" << i << ") is different!"
              << endl;
-        cout << "expected: " << mp[i] << ", returned: " << tr.count(i) << endl;
+        cout << "expected: " << mp[i] << ", returned: " << tr->count(i) << endl;
         return 1;
       }
     }
     // search test
     for (unsigned long i = 1; i <= data_max; i++) {
-      Item a = tr.search(i);
+      Item a = tr->search(i);
       if ((mp[i] > 0 && a.key == 0) || (mp[i] == 0 && a.key > 0)) {
         cout << "case " << num << " failed: search(" << i << ") is different!"
              << endl;
         cout << "expected: " << (mp[i] != 0)
-             << ", returned: " << (tr.search(i).key != 0) << endl;
+             << ", returned: " << (tr->search(i).key != 0) << endl;
         return 1;
       }
     }
@@ -219,7 +239,7 @@ private:
     // count range test
     for (unsigned long i = 0; i < 10; i++) {
       for (unsigned long j = 30; j < 200; j += 5) {
-        unsigned long tr_cnt = tr.count_range(i, j);
+        unsigned long tr_cnt = tr->count_range(i, j);
         // count in map
         unsigned long mp_cnt = 0;
         for (unsigned long k = i; k <= j; k++) {
@@ -295,34 +315,28 @@ int main(int argc, char *argv[]) {
   }
   string tree = argv[optind];
 
+  IndexType index_type = B;
   if (tree == "b") {
+    index_type = B;
     cout << "<< B tree >>" << endl;
-    auto tm = TestManager<Btree>();
-    if (simple_test)
-      tm.exec_simple_test(debug);
-    if (test)
-      tm.exec_test(debug);
-    if (bench)
-      tm.exec_benchmark(debug);
   } else if (tree == "bp") {
-    cout << "<< B+ tree >>" << endl;
-    auto tm = TestManager<Bplustree>();
-    if (simple_test)
-      tm.exec_simple_test(debug);
-    if (test)
-      tm.exec_test(debug);
-    if (bench)
-      tm.exec_benchmark(debug);
+    index_type = Bplus;
+    cout << "<< Bplus tree >>" << endl;
   } else if (tree == "bs") {
-    cout << "<< B* tree >>" << endl;
-    auto tm = TestManager<Bstartree>();
-    if (simple_test)
-      tm.exec_simple_test(debug);
-    if (test)
-      tm.exec_test(debug);
-    if (bench)
-      tm.exec_benchmark(debug);
+    index_type = Bstar;
+    cout << "<< Bstar tree >>" << endl;
+  } else {
+    cout << "No index type specified!!" << endl;
+    return 1;
   }
+
+  auto tm = TestManager(index_type);
+  if (simple_test)
+    tm.exec_simple_test(debug);
+  if (test)
+    tm.exec_test(debug);
+  if (bench)
+    tm.exec_benchmark(debug);
 
   return 0;
 }
