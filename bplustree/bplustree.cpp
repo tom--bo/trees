@@ -57,10 +57,6 @@ Bplustree::Bplustree(short t_num)
   root = n;
 }
 
-void Bplustree::print_index_type() {
-  cout << "<< B+ tree >>" << endl;
-}
-
 // Allocate-BpNode
 BpNode *Bplustree::allocate_node() {
   mc.node_count++;
@@ -389,7 +385,7 @@ void Bplustree::update_metric() {
   // height
   BpNode *x = this->root;
   mc.height = 1;
-  while(!x->is_leaf) {
+  while (!x->is_leaf) {
     x = x->p[0];
     mc.height += 1;
   }

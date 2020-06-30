@@ -43,10 +43,6 @@ Bstartree::Bstartree(short t_num)
   root = n;
 }
 
-void Bstartree::print_index_type() {
-  cout << "<< B* tree >>" << endl;
-}
-
 // Allocate-BsNode
 BsNode *Bstartree::allocate_node() {
   mc.node_count++;
@@ -401,7 +397,7 @@ void Bstartree::update_metric() {
   // height
   BsNode *x = this->root;
   mc.height = 1;
-  while(!x->is_leaf) {
+  while (!x->is_leaf) {
     x = x->p[0];
     mc.height += 1;
   }

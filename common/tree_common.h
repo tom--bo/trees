@@ -67,7 +67,6 @@ public:
 
 class Indexable {
 public:
-  virtual void print_index_type() = 0;
   virtual void update_metric() = 0;
   virtual unsigned get_key_max() = 0;
   virtual void insert(Item k) = 0;

@@ -39,11 +39,8 @@ private:
 public:
   // B-Tree-Create
   Bstartree(short t_num);
-  void print_index_type();
   void update_metric();
-  unsigned get_key_max() {
-      return key_max;
-  };
+  unsigned get_key_max() { return key_max; };
   void insert(Item k);
   bool delete_key(unsigned long k);
   Item search(unsigned long k) { return search(root, k); }

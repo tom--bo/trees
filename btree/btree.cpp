@@ -41,10 +41,6 @@ Btree::Btree(short t_num)
   root = n;
 }
 
-void Btree::print_index_type() {
-  cout << "<< B tree >>" << endl;
-}
-
 // Allocate-Node
 BNode *Btree::allocate_node() {
   mc.node_count++;
@@ -289,7 +285,7 @@ void Btree::update_metric() {
   // height
   BNode *x = this->root;
   mc.height = 1;
-  while(!x->is_leaf) {
+  while (!x->is_leaf) {
     x = x->p[0];
     mc.height += 1;
   }
