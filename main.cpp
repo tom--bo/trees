@@ -36,10 +36,12 @@ public:
 
   void exec_benchmark(bool debug, unsigned int lru_capa) {
     cout << "=== BENCH START ===" << endl;
-    vector<int> t = {/*4, 16, */ 64, 256};
+    vector<int> t = {4, 8, 16, 32, 64, 128, 256, 512};
     bench(debug, lru_capa, t, 10, 1000000, 1000, 100000, 0, 0, 100, 0);
-    // bench(debug, lru_capa, t, 10, 1000000, 1000, 100000, 0, 0, 90, 10);
-    // bench(debug, lru_capa, t, 10, 1000000, 1000, 100000, 0, 0, 80, 20);
+    bench(debug, lru_capa, t, 10, 1000000, 1000, 100000, 0, 0, 90, 10);
+    bench(debug, lru_capa, t, 10, 1000000, 1000, 100000, 0, 0, 80, 20);
+    bench(debug, lru_capa, t, 10, 1000000, 1000, 100000, 0, 0, 70, 30);
+    bench(debug, lru_capa, t, 10, 1000000, 1000, 100000, 0, 0, 60, 40);
     // bench(debug, lru_capa, t, 10, 200000, 1000, 100000, 19, 1, 70, 10);
   }
 
@@ -86,9 +88,9 @@ private:
              unsigned long ope_cnt, unsigned int initial_insert, int mod,
              unsigned long select_pct, unsigned long range_pct,
              unsigned long insert_pct, unsigned long del_pct) {
-    printf("\nope_cnt: %lu, mod: %d, select(%%): %lu, range(%%): %lu, "
+    printf("\nope_cnt: %lu, mod: %d, lru_capa: %d, select(%%): %lu, range(%%): %lu, "
            "insert(%%): %lu, del(%%): %lu\n",
-           ope_cnt, mod, select_pct, range_pct, insert_pct, del_pct);
+           ope_cnt, mod, lru_capa, select_pct, range_pct, insert_pct, del_pct);
     cout << "  T, Ave_total_time(ms)";
     if (debug) {
       cout << ", Ave_node_cnt, Ave_inter_node, Ave_leaf_node, "
@@ -295,10 +297,14 @@ int main(int argc, char *argv[]) {
       lru_capa = stoi(string(optarg));
       break;
     case 'h':
-      cout << "h: help" << endl;
-      cout << "t: Execute my test" << endl;
-      cout << "b: Execute my benchmark" << endl;
-      break;
+      cout << "./main (-b|-t|-s) [-d] [-l (num)] (b|bp|bs) " << endl;
+      cout << "-h: help" << endl;
+      cout << "-t: Execute my test" << endl;
+      cout << "-s: Execute my simple test" << endl;
+      cout << "-b: Execute my benchmark" << endl;
+      cout << "-d: (Debug mode) Print additional info" << endl;
+      cout << "-l [num]: define LRU cache capacity (node number). If you don't specify this, LRU cache is disabled (Not assumes disk storage)" << endl;
+      return 1;
     case 's':
       simple_test = true;
       break;
@@ -308,10 +314,9 @@ int main(int argc, char *argv[]) {
 
     default: /* '?' */
       cout << "Plz see help by -h" << endl;
-      break;
+      return 1;
     }
   }
-  cout << "lru: " << lru_capa + 100 << endl;
   string tree = argv[optind];
 
   IndexType index_type = B;
