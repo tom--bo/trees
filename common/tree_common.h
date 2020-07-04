@@ -1,6 +1,12 @@
 #include <bits/stdc++.h>
-#include <unistd.h>
-using namespace std;
+#define UNUSED(x) ((void)x)
+
+enum IndexType {
+  B = 0,
+  B_PLUS = 1,
+  B_STAR = 2,
+};
+
 /*
  * Item
  */
@@ -31,8 +37,13 @@ struct MetricCounter {
   }
 };
 
+class Inode {
+public:
+  virtual void reset() = 0;
+};
+
 /*
- * Indexable
+ * Indexable (Interface class of trees and skiplist)
  */
 class Indexable {
 public:
@@ -49,117 +60,65 @@ public:
 };
 
 /*
+ * INodeManager
+ */
+class INodeManager {
+public:
+  virtual void check_node(Inode *) = 0;
+  virtual Inode *create_node() = 0;
+  virtual void return_node(Inode *) = 0;
+};
+
+/*
  * NodeManager
  */
-template <class T> class NodeManager {
+class NodeManager : public INodeManager {
+  IndexType index_type;
   unsigned int pool_cnt;
   short t;
-  std::vector<T *> node_pool;
-  std::queue<T *> returned_queue;
+  std::vector<Inode *> node_pool;
+  std::queue<Inode *> returned_queue;
 
 public:
-  NodeManager(short t_num, int node_cnt) : t{t_num} {
+  NodeManager(short t_num, int node_cnt, IndexType it)
+      : index_type{it}, t{t_num} {
     pool_cnt = 0;
-    node_pool = std::vector<T *>(node_cnt);
+    node_pool = std::vector<Inode *>(node_cnt);
   }
-
-  void check_node(T *node) { return; }
-
-  T *create_node() {
-    T *n;
-    if (!returned_queue.empty()) {
-      n = returned_queue.front();
-      returned_queue.pop();
-      return n;
-    }
-    if (pool_cnt != node_pool.size() - 1) {
-      n = new T(t);
-      node_pool.push_back(n);
-      pool_cnt++;
-      return n;
-    }
-    return node_pool[pool_cnt++];
+  void check_node(Inode *node) override {
+    // DO NOTHING
+    UNUSED(node);
+    return;
   }
-
-  void return_node(T *n) {
-    n->reset();
-    returned_queue.push(n);
-  }
+  Inode *create_node() override;
+  void return_node(Inode *n) override;
 };
 
 /*
  * LRUNodeManager
  */
-template <class T> class LRUNodeManager {
+class LRUNodeManager : public INodeManager {
+  IndexType index_type;
   unsigned int pool_cnt;
   short t;
-  std::vector<T *> node_pool;
-  std::queue<T *> returned_queue;
+  std::vector<Inode *> node_pool;
+  std::queue<Inode *> returned_queue;
   // LRU cache
-  list<uintptr_t> queue;
-  unordered_map<uintptr_t, list<uintptr_t>::iterator> itr;
+  std::list<uintptr_t> queue;
+  std::unordered_map<uintptr_t, std::list<uintptr_t>::iterator> itr;
   unsigned int capa;
   int disk_access_penalty_us;
 
 public:
-  LRUNodeManager(short t_num, int node_cnt)
-      : t{t_num}, capa{10000}, disk_access_penalty_us{100} {
+  LRUNodeManager(short t_num, int node_cnt, IndexType it)
+      : index_type{it}, t{t_num}, capa{10000}, disk_access_penalty_us{100} {
     pool_cnt = 0;
-    node_pool = std::vector<T *>(node_cnt);
+    node_pool = std::vector<Inode *>(node_cnt);
   }
 
-  bool get_lru(T *np) {
-    uintptr_t p = uintptr_t(np);
-    if (itr.count(p) == 0) {
-      return false;
-    }
-    queue.erase(itr[p]);
-    queue.push_front(p);
-    itr[p] = queue.begin();
-    return true;
-  }
-
-  void cache_node(T *np) {
-    uintptr_t p = uintptr_t(np);
-    if (itr.count(p) != 0) {
-      queue.erase(itr[p]);
-    } else {
-      usleep(disk_access_penalty_us);
-    }
-    queue.push_front(p);
-    itr[p] = queue.begin();
-    if (queue.size() > capa) {
-      auto k = *(--queue.end());
-      itr.erase(k);
-      queue.pop_back();
-    }
-  }
-
-  void check_node(T *node) {
-    if (get_lru(node)) {
-      return;
-    }
-    usleep(disk_access_penalty_us);
-  }
-
-  T *create_node() {
-    T *n;
-    if (!returned_queue.empty()) {
-      n = returned_queue.front();
-      returned_queue.pop();
-    } else if (pool_cnt != node_pool.size() - 1) {
-      n = new T(t);
-      node_pool.push_back(n);
-      pool_cnt++;
-    } else {
-      n = node_pool[pool_cnt++];
-    }
-    cache_node(n);
-    return n;
-  }
-
-  void return_node(T *n) {
-    n->reset();
-    returned_queue.push(n);
-  }
+  Inode *create_node() override;
+  void return_node(Inode *n) override;
+  void check_node(Inode *node) override;
+  void cache_node(Inode *np);
+  bool get_lru(Inode *np);
 };

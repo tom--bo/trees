@@ -6,12 +6,6 @@
 using namespace std;
 using namespace std::chrono;
 
-enum IndexType {
-  B,
-  Bplus,
-  Bstar,
-};
-
 string getTestFilename(int n) {
   ios::fmtflags curret_flag = std::cout.flags();
 
@@ -320,10 +314,10 @@ int main(int argc, char *argv[]) {
     index_type = B;
     cout << "<< B tree >>" << endl;
   } else if (tree == "bp") {
-    index_type = Bplus;
+    index_type = B_PLUS;
     cout << "<< Bplus tree >>" << endl;
   } else if (tree == "bs") {
-    index_type = Bstar;
+    index_type = B_STAR;
     cout << "<< Bstar tree >>" << endl;
   } else {
     cout << "No index type specified!!" << endl;

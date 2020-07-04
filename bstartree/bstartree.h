@@ -4,7 +4,7 @@
 #include "tree_common.h"
 #endif
 
-class BsNode {
+class BsNode : public Inode {
 public:
   bool is_leaf{false};
   short key_cnt{0};
@@ -20,7 +20,7 @@ public:
     // keys = std::vector<Item>(t * 2);
     // p = std::vector<BsNode *>(t * 2 + 1, nullptr);
   }
-  void reset() {
+  void reset() override {
     key_cnt = 0;
     is_leaf = false;
   }
@@ -34,7 +34,7 @@ private:
   short split_key_min;
   // split_key_min => (t_num * 2 - 1) * 2 / 3;
   MetricCounter mc;
-  NodeManager<BsNode> nm;
+  INodeManager *nm;
 
 public:
   // B-Tree-Create

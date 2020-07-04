@@ -4,7 +4,7 @@
 #include "tree_common.h"
 #endif
 
-class BpNode {
+class BpNode : public Inode {
 public:
   BpNode *left{nullptr}, *right{nullptr};
   bool is_leaf{false};
@@ -21,7 +21,7 @@ public:
     for (int i = 0; i < t * 2 + 1; i++)
       p[i] = nullptr;
   }
-  void reset() {
+  void reset() override {
     key_cnt = 0;
     is_leaf = false;
     left = nullptr;
@@ -35,7 +35,7 @@ private:
   short key_max; // 2*T
   short key_min; // T
   MetricCounter mc;
-  NodeManager<BpNode> nm;
+  INodeManager *nm;
 
 public:
   // Bplus-Tree-Create

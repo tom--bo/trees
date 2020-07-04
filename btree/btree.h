@@ -4,7 +4,7 @@
 #include "tree_common.h"
 #endif
 
-class BNode {
+class BNode : public Inode {
 public:
   bool is_leaf{false};
   short key_cnt{0};
@@ -16,7 +16,7 @@ public:
     for (int i = 0; i < t * 2; i++)
       p[i] = nullptr;
   }
-  void reset() {
+  void reset() override {
     key_cnt = 0;
     is_leaf = false;
   }
@@ -28,7 +28,7 @@ private:
   short key_max; // 2*T-1
   short key_min; // T-1
   MetricCounter mc;
-  LRUNodeManager<BNode> nm;
+  INodeManager *nm;
 
 public:
   // B-Tree-Create
