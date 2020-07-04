@@ -46,7 +46,7 @@ Bstartree::Bstartree(short t_num)
 // Allocate-BsNode
 BsNode *Bstartree::allocate_node() {
   mc.node_count++;
-  return nm.get_node();
+  return nm.create_node();
 }
 
 // insert

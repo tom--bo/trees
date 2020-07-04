@@ -60,7 +60,7 @@ Bplustree::Bplustree(short t_num)
 // Allocate-BpNode
 BpNode *Bplustree::allocate_node() {
   mc.node_count++;
-  return nm.get_node();
+  return nm.create_node();
 }
 
 // insert

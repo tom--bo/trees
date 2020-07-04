@@ -42,11 +42,11 @@ public:
 
   void exec_benchmark(bool debug) {
     cout << "=== BENCH START ===" << endl;
-    vector<int> t = {4, 16, 64, 256};
+    vector<int> t = {/*4, 16, */64, 256};
     bench(debug, t, 10, 1000000, 1000, 100000, 0, 0, 100, 0);
-    bench(debug, t, 10, 1000000, 1000, 100000, 0, 0, 90, 10);
-    bench(debug, t, 10, 1000000, 1000, 100000, 0, 0, 80, 20);
-    bench(debug, t, 10, 200000, 1000, 100000, 19, 1, 70, 10);
+    // bench(debug, t, 10, 1000000, 1000, 100000, 0, 0, 90, 10);
+    // bench(debug, t, 10, 1000000, 1000, 100000, 0, 0, 80, 20);
+    // bench(debug, t, 10, 200000, 1000, 100000, 19, 1, 70, 10);
   }
 
   void exec_test(bool debug) {

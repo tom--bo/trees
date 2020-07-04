@@ -28,7 +28,7 @@ private:
   short key_max; // 2*T-1
   short key_min; // T-1
   MetricCounter mc;
-  NodeManager<BNode> nm;
+  LRUNodeManager<BNode> nm;
 
 public:
   // B-Tree-Create
