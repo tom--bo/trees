@@ -6,12 +6,6 @@
 using namespace std;
 using namespace std::chrono;
 
-enum IndexType {
-  B,
-  Bplus,
-  Bstar,
-};
-
 string getTestFilename(int n) {
   ios::fmtflags curret_flag = std::cout.flags();
 
@@ -40,16 +34,16 @@ public:
 
   TestManager(IndexType it) : index_type{it} {};
 
-  void exec_benchmark(bool debug) {
+  void exec_benchmark(bool debug, unsigned int lru_capa) {
     cout << "=== BENCH START ===" << endl;
-    vector<int> t = {4, 16, 64, 256};
-    bench(debug, t, 10, 1000000, 1000, 100000, 0, 0, 100, 0);
-    bench(debug, t, 10, 1000000, 1000, 100000, 0, 0, 90, 10);
-    bench(debug, t, 10, 1000000, 1000, 100000, 0, 0, 80, 20);
-    bench(debug, t, 10, 200000, 1000, 100000, 19, 1, 70, 10);
+    vector<int> t = {/*4, 16, */ 64, 256};
+    bench(debug, lru_capa, t, 10, 1000000, 1000, 100000, 0, 0, 100, 0);
+    // bench(debug, lru_capa, t, 10, 1000000, 1000, 100000, 0, 0, 90, 10);
+    // bench(debug, lru_capa, t, 10, 1000000, 1000, 100000, 0, 0, 80, 20);
+    // bench(debug, lru_capa, t, 10, 200000, 1000, 100000, 19, 1, 70, 10);
   }
 
-  void exec_test(bool debug) {
+  void exec_test(bool debug, unsigned int lru_capa) {
     cout << "=== TEST START ===" << endl;
     vector<short> t = {2, 5, 10, 100};
     for (unsigned int n = 0; n < t.size(); n++) {
@@ -57,7 +51,7 @@ public:
       cout << "T = " << t[n] << " ------------- " << endl;
       for (int i = 0; i <= 40; i++) {
         string s = getTestFilename(i);
-        ng += test(debug, s, t[n], i);
+        ng += test(debug, lru_capa, s, t[n], i);
       }
       if (ng == 0) {
         cout << "All tests passed!!" << endl;
@@ -65,11 +59,11 @@ public:
     }
   }
 
-  void exec_simple_test(bool debug) {
+  void exec_simple_test(bool debug, unsigned int lru_capa) {
     int ng = 0;
     for (int i = 0; i <= 10; i++) {
       string s = getSimpleTestFilename(i);
-      ng += test(debug, s, 2, i);
+      ng += test(debug, lru_capa, s, 2, i);
     }
     if (ng == 0) {
       cout << "All tests passed!!" << endl;
@@ -77,21 +71,21 @@ public:
   }
 
 private:
-  Indexable *buildTree(IndexType it, short int t) {
+  Indexable *buildTree(IndexType it, short int t, unsigned int lru_capa) {
     switch (it) {
     case 0:
-      return new Btree(t);
+      return new Btree(t, lru_capa);
     case 1:
-      return new Bplustree(t);
+      return new Bplustree(t, lru_capa);
     case 2:
-      return new Bstartree(t);
+      return new Bstartree(t, lru_capa);
     }
   }
 
-  void bench(bool debug, vector<int> vt, int exp_cnt, unsigned long ope_cnt,
-             unsigned int initial_insert, int mod, unsigned long select_pct,
-             unsigned long range_pct, unsigned long insert_pct,
-             unsigned long del_pct) {
+  void bench(bool debug, unsigned int lru_capa, vector<int> vt, int exp_cnt,
+             unsigned long ope_cnt, unsigned int initial_insert, int mod,
+             unsigned long select_pct, unsigned long range_pct,
+             unsigned long insert_pct, unsigned long del_pct) {
     printf("\nope_cnt: %lu, mod: %d, select(%%): %lu, range(%%): %lu, "
            "insert(%%): %lu, del(%%): %lu\n",
            ope_cnt, mod, select_pct, range_pct, insert_pct, del_pct);
@@ -110,7 +104,7 @@ private:
       unsigned key_max;
       for (int j = 0; j < exp_cnt; j++) {
         // init
-        Indexable *tree = buildTree(index_type, vt[i]);
+        Indexable *tree = buildTree(index_type, vt[i], lru_capa);
         key_max = tree->get_key_max();
         mt19937_64 mt(j);
 
@@ -185,14 +179,15 @@ private:
     }
   }
 
-  int test(bool debug, string filename, short int t, int num) {
+  int test(bool debug, unsigned int lru_capa, string filename, short int t,
+           int num) {
     ifstream in(filename);
     cin.rdbuf(in.rdbuf());
     short int flag;
     unsigned long data, i = 0;
     unsigned long data_max = 0;
 
-    Indexable *tr = buildTree(index_type, t);
+    Indexable *tr = buildTree(index_type, t, lru_capa);
     auto mp = map<unsigned long, unsigned long>();
 
     while (cin >> flag >> data) {
@@ -287,10 +282,22 @@ int main(int argc, char *argv[]) {
   int opt;
   bool bench = false, test = false, simple_test = false;
   bool debug = false;
-  while ((opt = getopt(argc, argv, "bdhst")) != -1) {
+  unsigned int lru_capa = 0;
+  while ((opt = getopt(argc, argv, "bdhl:st")) != -1) {
     switch (opt) {
     case 'b':
       bench = true;
+      break;
+    case 'd':
+      debug = true;
+      break;
+    case 'l':
+      lru_capa = stoi(string(optarg));
+      break;
+    case 'h':
+      cout << "h: help" << endl;
+      cout << "t: Execute my test" << endl;
+      cout << "b: Execute my benchmark" << endl;
       break;
     case 's':
       simple_test = true;
@@ -298,21 +305,13 @@ int main(int argc, char *argv[]) {
     case 't':
       test = true;
       break;
-    case 'd':
-      debug = true;
-      break;
-
-    case 'h':
-      cout << "h: help" << endl;
-      cout << "t: Execute my test" << endl;
-      cout << "b: Execute my benchmark" << endl;
-      break;
 
     default: /* '?' */
       cout << "Plz see help by -h" << endl;
       break;
     }
   }
+  cout << "lru: " << lru_capa + 100 << endl;
   string tree = argv[optind];
 
   IndexType index_type = B;
@@ -320,10 +319,10 @@ int main(int argc, char *argv[]) {
     index_type = B;
     cout << "<< B tree >>" << endl;
   } else if (tree == "bp") {
-    index_type = Bplus;
+    index_type = B_PLUS;
     cout << "<< Bplus tree >>" << endl;
   } else if (tree == "bs") {
-    index_type = Bstar;
+    index_type = B_STAR;
     cout << "<< Bstar tree >>" << endl;
   } else {
     cout << "No index type specified!!" << endl;
@@ -332,11 +331,11 @@ int main(int argc, char *argv[]) {
 
   auto tm = TestManager(index_type);
   if (simple_test)
-    tm.exec_simple_test(debug);
+    tm.exec_simple_test(debug, lru_capa);
   if (test)
-    tm.exec_test(debug);
+    tm.exec_test(debug, lru_capa);
   if (bench)
-    tm.exec_benchmark(debug);
+    tm.exec_benchmark(debug, lru_capa);
 
   return 0;
 }

@@ -47,8 +47,13 @@ short find_right_most_pointer_in_node(BpNode *x, unsigned long k) {
   return l;
 }
 
-Bplustree::Bplustree(short t_num)
-    : mc{MetricCounter()}, nm{NodeManager<BpNode>(t_num, 3000)} {
+Bplustree::Bplustree(short t_num, unsigned int l) {
+  mc = MetricCounter();
+  if (l == 0) {
+    nm = new NodeManager(t_num, 3000, B_PLUS);
+  } else {
+    nm = new LRUNodeManager(t_num, l, B_PLUS);
+  }
   key_max = t_num * 2;
   key_min = t_num - 1;
 
@@ -57,14 +62,10 @@ Bplustree::Bplustree(short t_num)
   root = n;
 }
 
-void Bplustree::print_index_type() {
-  cout << "<< B+ tree >>" << endl;
-}
-
 // Allocate-BpNode
 BpNode *Bplustree::allocate_node() {
   mc.node_count++;
-  return nm.get_node();
+  return (BpNode *)nm->create_node();
 }
 
 // insert
@@ -267,7 +268,7 @@ void Bplustree::merge(BpNode *x, short idx) {
     y->right = nullptr;
   }
 
-  nm.return_node(z);
+  nm->return_node((Inode *)z);
   mc.node_count--;
 }
 
@@ -282,7 +283,7 @@ bool Bplustree::delete_key(unsigned long k) {
     BpNode *x = root;
     BpNode *y = root->p[0];
     merge(x, 0);
-    nm.return_node(x);
+    nm->return_node((Inode *)x);
     mc.node_count--;
     root = y;
   }
@@ -389,7 +390,7 @@ void Bplustree::update_metric() {
   // height
   BpNode *x = this->root;
   mc.height = 1;
-  while(!x->is_leaf) {
+  while (!x->is_leaf) {
     x = x->p[0];
     mc.height += 1;
   }

@@ -31,8 +31,14 @@ short find_right_most_key_or_left_bound_in_node(BNode *x, unsigned long k) {
   return l;
 }
 
-Btree::Btree(short t_num)
-    : mc{MetricCounter()}, nm{NodeManager<BNode>(t_num, 3000)} {
+Btree::Btree(short t_num, unsigned int l) {
+  mc = MetricCounter();
+  if (l == 0) {
+    nm = new NodeManager(t_num, 3000, B);
+  } else {
+    nm = new LRUNodeManager(t_num, l, B);
+  }
+
   key_max = t_num * 2 - 1;
   key_min = t_num - 1;
 
@@ -41,14 +47,10 @@ Btree::Btree(short t_num)
   root = n;
 }
 
-void Btree::print_index_type() {
-  cout << "<< B tree >>" << endl;
-}
-
 // Allocate-Node
 BNode *Btree::allocate_node() {
   mc.node_count++;
-  return nm.get_node();
+  return (BNode *)nm->create_node();
 }
 
 // insert
@@ -76,6 +78,7 @@ void Btree::insert_nonfull(BNode *x, Item k) {
     i = find_left_most_key_or_right_bound_in_node(x, k.key);
 
     // if child node is full
+    nm->check_node(x->p[i]);
     if (x->p[i]->key_cnt == key_max) {
       split_child(x, i);
       if (k.key > x->keys[i].key) {
@@ -89,6 +92,7 @@ void Btree::insert_nonfull(BNode *x, Item k) {
 void Btree::split_child(BNode *x, short i) {
   mc.node_split++;
   BNode *z = allocate_node();
+  nm->check_node(x->p[i]);
   BNode *y = x->p[i];
   z->is_leaf = y->is_leaf;
 
@@ -127,6 +131,7 @@ Item Btree::search(BNode *x, unsigned long k) {
     } else if (x->is_leaf) {
       continue;
     }
+    nm->check_node(x->p[i]);
     Item it = search(x->p[i], k);
     if (it.key != 0 && it.val != 0) {
       return it;
@@ -143,6 +148,7 @@ unsigned long Btree::count_range(BNode *x, unsigned long min_,
   cnt += r - l + 1;
   if (!x->is_leaf) {
     for (short i = l; i <= r + 1; i++) {
+      nm->check_node(x->p[i]);
       cnt += count_range(x->p[i], min_, max_);
     }
   }
@@ -152,19 +158,23 @@ unsigned long Btree::count_range(BNode *x, unsigned long min_,
 BNode *Btree::min_leaf_node_in_subtree(BNode *x) {
   if (x->is_leaf)
     return x;
+  nm->check_node(x->p[0]);
   return min_leaf_node_in_subtree(x->p[0]);
 }
 
 BNode *Btree::max_leaf_node_in_subtree(BNode *x) {
   if (x->is_leaf)
     return x;
+  nm->check_node(x->p[x->key_cnt]);
   return max_leaf_node_in_subtree(x->p[x->key_cnt]);
 }
 
 void Btree::merge(BNode *x, short idx) {
   mc.node_merge++;
   BNode *y = x->p[idx];
+  nm->check_node(y);
   BNode *z = x->p[idx + 1];
+  nm->check_node(z);
 
   // push down x's key to y
   y->keys[y->key_cnt] = x->keys[idx];
@@ -183,7 +193,7 @@ void Btree::merge(BNode *x, short idx) {
   }
   y->p[y->key_cnt] = z->p[z->key_cnt];
 
-  nm.return_node(z);
+  nm->return_node((Inode *)z);
   mc.node_count--;
 }
 
@@ -196,9 +206,11 @@ bool Btree::delete_key(unsigned long k) {
   if (root->key_cnt == 1 && root->p[0] && root->p[1] &&
       root->p[0]->key_cnt <= key_min && root->p[1]->key_cnt <= key_min) {
     BNode *x = root;
+    nm->check_node(root->p[0]);
     BNode *y = root->p[0];
+
     merge(x, 0);
-    nm.return_node(x);
+    nm->return_node((Inode *)x);
     mc.node_count--;
     root = y;
   }
@@ -222,11 +234,13 @@ bool Btree::delete_key(BNode *x, unsigned long k) {
   }
   if (i < x->key_cnt && x->keys[i].key == k) { // key found
     if (x->p[i]->key_cnt > key_min) {
+      nm->check_node(x->p[i]);
       // 2.a x has k and max_leaf_node_in_subtree has more than t-1 keys
       BNode *max_leaf = max_leaf_node_in_subtree(x->p[i]);
       x->keys[i] = max_leaf->keys[max_leaf->key_cnt - 1];
       return delete_key(x->p[i], x->keys[i].key);
     } else if (x->p[i + 1]->key_cnt > key_min) {
+      nm->check_node(x->p[i + 1]);
       // 2.b x has k and min_leaf_node_in_subtre has more than t-1 keys
       BNode *min_leaf = min_leaf_node_in_subtree(x->p[i + 1]);
       x->keys[i] = min_leaf->keys[0];
@@ -239,11 +253,14 @@ bool Btree::delete_key(BNode *x, unsigned long k) {
   } else { // key not found at this node
     // 3
     // child node has enough keys
+    nm->check_node(x->p[i]);
     if (x->p[i]->key_cnt > key_min) {
       return delete_key(x->p[i], k);
     }
 
     BNode *a = x->p[i];
+    nm->check_node(x->p[i - 1]);
+    nm->check_node(x->p[i + 1]);
     if (i != 0 && x->p[i - 1]->key_cnt > key_min) {
       // 3.a.left
       // move key from p[i-1] via parent node(x)
@@ -289,7 +306,7 @@ void Btree::update_metric() {
   // height
   BNode *x = this->root;
   mc.height = 1;
-  while(!x->is_leaf) {
+  while (!x->is_leaf) {
     x = x->p[0];
     mc.height += 1;
   }

@@ -32,8 +32,13 @@ short find_right_most_key_or_left_bound_in_node(BsNode *x, unsigned long k) {
   return l;
 }
 
-Bstartree::Bstartree(short t_num)
-    : mc{MetricCounter()}, nm{NodeManager<BsNode>(t_num, 3000)} {
+Bstartree::Bstartree(short t_num, unsigned int l) {
+  mc = MetricCounter();
+  if (l == 0) {
+    nm = new NodeManager(t_num, 3000, B_STAR);
+  } else {
+    nm = new LRUNodeManager(t_num, l, B_STAR);
+  }
   key_max = t_num * 2;
   key_min = t_num - 1;
   split_key_min = (t_num * 2 - 1) * 2 / 3;
@@ -43,14 +48,10 @@ Bstartree::Bstartree(short t_num)
   root = n;
 }
 
-void Bstartree::print_index_type() {
-  cout << "<< B* tree >>" << endl;
-}
-
 // Allocate-BsNode
 BsNode *Bstartree::allocate_node() {
   mc.node_count++;
-  return nm.get_node();
+  return (BsNode *)nm->create_node();
 }
 
 // insert
@@ -294,7 +295,7 @@ void Bstartree::merge(BsNode *x, short idx) {
   }
   y->p[y->key_cnt] = z->p[z->key_cnt];
 
-  nm.return_node(z);
+  nm->return_node((Inode *)z);
   mc.node_count--;
 }
 
@@ -309,7 +310,7 @@ bool Bstartree::delete_key(unsigned long k) {
     BsNode *x = root;
     BsNode *y = root->p[0];
     merge(x, 0);
-    nm.return_node(x);
+    nm->return_node((Inode *)x);
     mc.node_count--;
     root = y;
   }
@@ -401,7 +402,7 @@ void Bstartree::update_metric() {
   // height
   BsNode *x = this->root;
   mc.height = 1;
-  while(!x->is_leaf) {
+  while (!x->is_leaf) {
     x = x->p[0];
     mc.height += 1;
   }
