@@ -47,9 +47,13 @@ short find_right_most_pointer_in_node(BpNode *x, unsigned long k) {
   return l;
 }
 
-Bplustree::Bplustree(short t_num) {
+Bplustree::Bplustree(short t_num, unsigned int l) {
   mc = MetricCounter();
-  nm = new NodeManager(t_num, 3000, B_PLUS);
+  if (l == 0) {
+    nm = new NodeManager(t_num, 3000, B_PLUS);
+  } else {
+    nm = new LRUNodeManager(t_num, l, B_PLUS);
+  }
   key_max = t_num * 2;
   key_min = t_num - 1;
 

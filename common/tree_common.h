@@ -110,8 +110,8 @@ class LRUNodeManager : public INodeManager {
   int disk_access_penalty_us;
 
 public:
-  LRUNodeManager(short t_num, int node_cnt, IndexType it)
-      : index_type{it}, t{t_num}, capa{10000}, disk_access_penalty_us{100} {
+  LRUNodeManager(short t_num, unsigned int node_cnt, IndexType it)
+      : index_type{it}, t{t_num}, capa{node_cnt}, disk_access_penalty_us{100} {
     pool_cnt = 0;
     node_pool = std::vector<Inode *>(node_cnt);
   }

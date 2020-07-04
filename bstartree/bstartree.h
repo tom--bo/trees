@@ -38,7 +38,7 @@ private:
 
 public:
   // B-Tree-Create
-  Bstartree(short t_num);
+  Bstartree(short t_num, unsigned int l);
   void update_metric();
   unsigned get_key_max() { return key_max; };
   void insert(Item k);

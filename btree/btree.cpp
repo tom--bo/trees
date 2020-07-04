@@ -31,9 +31,14 @@ short find_right_most_key_or_left_bound_in_node(BNode *x, unsigned long k) {
   return l;
 }
 
-Btree::Btree(short t_num) {
+Btree::Btree(short t_num, unsigned int l) {
   mc = MetricCounter();
-  nm = new NodeManager(t_num, 3000, B);
+  if (l == 0) {
+    nm = new NodeManager(t_num, 3000, B);
+  } else {
+    nm = new LRUNodeManager(t_num, l, B);
+  }
+
   key_max = t_num * 2 - 1;
   key_min = t_num - 1;
 
