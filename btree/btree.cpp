@@ -172,8 +172,8 @@ BNode *Btree::max_leaf_node_in_subtree(BNode *x) {
 void Btree::merge(BNode *x, short idx) {
   mc.node_merge++;
   BNode *y = x->p[idx];
-  nm->check_node(y);
   BNode *z = x->p[idx + 1];
+  nm->check_node(y);
   nm->check_node(z);
 
   // push down x's key to y
@@ -206,7 +206,6 @@ bool Btree::delete_key(unsigned long k) {
   if (root->key_cnt == 1 && root->p[0] && root->p[1] &&
       root->p[0]->key_cnt <= key_min && root->p[1]->key_cnt <= key_min) {
     BNode *x = root;
-    nm->check_node(root->p[0]);
     BNode *y = root->p[0];
 
     merge(x, 0);
@@ -232,15 +231,15 @@ bool Btree::delete_key(BNode *x, unsigned long k) {
     }
     return false;
   }
+  nm->check_node(x->p[i]);
+  nm->check_node(x->p[i + 1]);
   if (i < x->key_cnt && x->keys[i].key == k) { // key found
     if (x->p[i]->key_cnt > key_min) {
-      nm->check_node(x->p[i]);
       // 2.a x has k and max_leaf_node_in_subtree has more than t-1 keys
       BNode *max_leaf = max_leaf_node_in_subtree(x->p[i]);
       x->keys[i] = max_leaf->keys[max_leaf->key_cnt - 1];
       return delete_key(x->p[i], x->keys[i].key);
     } else if (x->p[i + 1]->key_cnt > key_min) {
-      nm->check_node(x->p[i + 1]);
       // 2.b x has k and min_leaf_node_in_subtre has more than t-1 keys
       BNode *min_leaf = min_leaf_node_in_subtree(x->p[i + 1]);
       x->keys[i] = min_leaf->keys[0];
@@ -253,14 +252,12 @@ bool Btree::delete_key(BNode *x, unsigned long k) {
   } else { // key not found at this node
     // 3
     // child node has enough keys
-    nm->check_node(x->p[i]);
     if (x->p[i]->key_cnt > key_min) {
       return delete_key(x->p[i], k);
     }
 
     BNode *a = x->p[i];
     nm->check_node(x->p[i - 1]);
-    nm->check_node(x->p[i + 1]);
     if (i != 0 && x->p[i - 1]->key_cnt > key_min) {
       // 3.a.left
       // move key from p[i-1] via parent node(x)

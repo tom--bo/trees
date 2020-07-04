@@ -86,6 +86,7 @@ void Bstartree::insert_nonfull(BsNode *x, Item k) {
       // check left side
       if (i != 0) {
         // if left node is almost full, split
+        nm->check_node(x->p[i - 1]);
         if (x->p[i - 1]->key_cnt >= key_max - 1) {
           split_child(x, i);
         } else { // if not almost full move key
@@ -93,6 +94,7 @@ void Bstartree::insert_nonfull(BsNode *x, Item k) {
         }
       } else {
         // if right node is almost full, split
+        nm->check_node(x->p[i + 1]);
         if (x->p[i + 1]->key_cnt >= key_max - 1) {
           split_child(x, i + 1);
         } else { // if not almost full move key
@@ -111,6 +113,8 @@ void Bstartree::insert_nonfull(BsNode *x, Item k) {
 void Bstartree::move_key_to_left(BsNode *x, short i) {
   BsNode *l = x->p[i - 1];
   BsNode *r = x->p[i];
+  nm->check_node(l);
+  nm->check_node(r);
 
   // move p to l
   l->keys[l->key_cnt] = x->keys[i - 1];
@@ -132,6 +136,8 @@ void Bstartree::move_key_to_left(BsNode *x, short i) {
 void Bstartree::move_key_to_right(BsNode *x, short i) {
   BsNode *l = x->p[i];
   BsNode *r = x->p[i + 1];
+  nm->check_node(l);
+  nm->check_node(r);
   // make space in r
   r->p[r->key_cnt + 1] = r->p[r->key_cnt];
   for (short j = r->key_cnt - 1; j >= 0; j--) {
@@ -152,6 +158,8 @@ void Bstartree::move_keys_to_right(BsNode *x, short i, short cnt,
                                    bool to_empty) {
   BsNode *l = x->p[i];
   BsNode *r = x->p[i + 1];
+  nm->check_node(l);
+  nm->check_node(r);
   if (!to_empty) {
     // make space in r
     r->p[r->key_cnt + cnt] = r->p[r->key_cnt];
@@ -192,6 +200,7 @@ void Bstartree::split_root(BsNode *x) {
   mc.node_split++;
   BsNode *z = allocate_node();
   BsNode *y = x->p[0];
+  nm->check_node(y);
   z->is_leaf = y->is_leaf;
   x->p[1] = z;
 
@@ -215,6 +224,7 @@ void Bstartree::split_child(BsNode *x, short i) {
 
   // add z node
   BsNode *y = x->p[i];
+  nm->check_node(y);
   BsNode *z = allocate_node();
   z->is_leaf = y->is_leaf;
   x->p[i + 1] = z;
@@ -237,6 +247,7 @@ Item Bstartree::search(BsNode *x, unsigned long k) {
     } else if (x->is_leaf) {
       continue;
     }
+    nm->check_node(x->p[i]);
     Item it = search(x->p[i], k);
     if (it.key != 0 && it.val != 0) {
       return it;
@@ -255,6 +266,7 @@ unsigned long Bstartree::count_range(BsNode *x, unsigned long min_,
       cnt++;
     }
     if (!x->is_leaf) {
+      nm->check_node(x->p[i]);
       cnt += count_range(x->p[i], min_, max_);
     }
   }
@@ -264,12 +276,14 @@ unsigned long Bstartree::count_range(BsNode *x, unsigned long min_,
 BsNode *Bstartree::min_leaf_node_in_subtree(BsNode *x) {
   if (x->is_leaf)
     return x;
+  nm->check_node(x->p[0]);
   return min_leaf_node_in_subtree(x->p[0]);
 }
 
 BsNode *Bstartree::max_leaf_node_in_subtree(BsNode *x) {
   if (x->is_leaf)
     return x;
+  nm->check_node(x->p[x->key_cnt]);
   return max_leaf_node_in_subtree(x->p[x->key_cnt]);
 }
 
@@ -277,6 +291,8 @@ void Bstartree::merge(BsNode *x, short idx) {
   mc.node_merge++;
   BsNode *y = x->p[idx];
   BsNode *z = x->p[idx + 1];
+  nm->check_node(y);
+  nm->check_node(z);
 
   // push down x's key to y
   y->keys[y->key_cnt] = x->keys[idx];
@@ -333,6 +349,8 @@ bool Bstartree::delete_key(BsNode *x, unsigned long k) {
     }
     return false;
   }
+  nm->check_node(x->p[i]);
+  nm->check_node(x->p[i + 1]);
   if (i < x->key_cnt && x->keys[i].key == k) { // key found
     if (x->p[i]->key_cnt > key_min) {
       // 2.a x has k and max_leaf_node_in_subtree has more than t-1 keys
@@ -357,6 +375,7 @@ bool Bstartree::delete_key(BsNode *x, unsigned long k) {
     }
 
     BsNode *a = x->p[i];
+    nm->check_node(x->p[i - 1]);
     if (i != 0 && x->p[i - 1]->key_cnt > key_min) {
       // 3.a.left
       // move key from p[i-1] via parent node(x)
