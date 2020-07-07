@@ -1,6 +1,18 @@
 # What is this
 
-A collection of tree data structure to learn.
+A collection of tree data structure to learn more and just for fun.
+
+# Implementation List
+
+- Red Black Tree
+- AVL Tree
+- [x] B Tree : Refer the book "Algorithm Introduction"
+- [x] B+ Tree : Extend B tree by myself
+- [x] B\* Tree
+- [ ] B-Link Tree
+- [ ] LSM Tree
+- [ ] Skip List
+
 
 # How to build
 
@@ -9,6 +21,7 @@ Use Makefile. (CMake is prepared only for IDE)
 ```
 make build
 ```
+
 
 # How to run
 
@@ -30,19 +43,6 @@ make build
 ```
 
 - `-d` means debug (print additional metrics)
-
-
-
-# Implementation List
-
-- Red Black Tree
-- AVL Tree
-- [x] B Tree : Refer the book "Algorithm Introduction"
-- [x] B+ Tree : Extend B tree by myself
-- [x] B\* Tree
-- [ ] B-Link Tree
-- [ ] LSM Tree
-- [ ] Skip List
 
 
 # License
