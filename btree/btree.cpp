@@ -319,8 +319,10 @@ void Btree::tree_walk_for_metric(BNode *x) {
     mc.leaf_node_keys_cnt += x->key_cnt;
     return;
   } else {
-    mc.intermediate_node_cnt += 1;
-    mc.intermediate_node_keys_cnt += x->key_cnt;
+    if (x != root) {
+      mc.intermediate_node_cnt += 1;
+      mc.intermediate_node_keys_cnt += x->key_cnt;
+    }
     for (short i = 0; i < x->key_cnt; i++) {
       tree_walk_for_metric(x->p[i]);
     }
