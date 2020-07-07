@@ -30,6 +30,8 @@ struct MetricCounter {
   double leaf_node_cnt{0};
   double intermediate_node_keys_cnt{0};
   double leaf_node_keys_cnt{0};
+  double cache_hit_cnt{0};
+  double cache_checked{0};
 
   void print() {
     printf("NodeCnt: %.1f, Merge: %.1f, Split: %.1f\n", node_count, node_merge,
@@ -101,6 +103,7 @@ class LRUNodeManager : public INodeManager {
   IndexType index_type;
   unsigned int pool_cnt;
   short t;
+  MetricCounter *metric_counter;
   std::vector<Inode *> node_pool;
   std::queue<Inode *> returned_queue;
   // LRU cache
@@ -110,8 +113,10 @@ class LRUNodeManager : public INodeManager {
   int disk_access_penalty_us;
 
 public:
-  LRUNodeManager(short t_num, unsigned int node_cnt, IndexType it)
-      : index_type{it}, t{t_num}, capa{node_cnt}, disk_access_penalty_us{100} {
+  LRUNodeManager(short t_num, unsigned int node_cnt, IndexType it,
+                 MetricCounter *mc)
+      : index_type{it}, t{t_num}, metric_counter{mc}, capa{node_cnt},
+        disk_access_penalty_us{100} {
     pool_cnt = 0;
     node_pool = std::vector<Inode *>(node_cnt);
   }

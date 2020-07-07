@@ -40,9 +40,6 @@ public:
     bench(debug, lru_capa, t, 10, 1000000, 1000, 100000, 0, 0, 100, 0);
     bench(debug, lru_capa, t, 10, 1000000, 1000, 100000, 0, 0, 90, 10);
     bench(debug, lru_capa, t, 10, 1000000, 1000, 100000, 0, 0, 80, 20);
-    bench(debug, lru_capa, t, 10, 1000000, 1000, 100000, 0, 0, 70, 30);
-    bench(debug, lru_capa, t, 10, 1000000, 1000, 100000, 0, 0, 60, 40);
-    // bench(debug, lru_capa, t, 10, 200000, 1000, 100000, 19, 1, 70, 10);
   }
 
   void exec_test(bool debug, unsigned int lru_capa) {
@@ -88,14 +85,15 @@ private:
              unsigned long ope_cnt, unsigned int initial_insert, int mod,
              unsigned long select_pct, unsigned long range_pct,
              unsigned long insert_pct, unsigned long del_pct) {
-    printf("\nope_cnt: %lu, mod: %d, lru_capa: %d, select(%%): %lu, range(%%): %lu, "
+    printf("\nope_cnt: %lu, mod: %d, lru_capa: %d, select(%%): %lu, range(%%): "
+           "%lu, "
            "insert(%%): %lu, del(%%): %lu\n",
            ope_cnt, mod, lru_capa, select_pct, range_pct, insert_pct, del_pct);
     cout << "  T, Ave_total_time(ms)";
     if (debug) {
       cout << ", Ave_node_cnt, Ave_inter_node, Ave_leaf_node, "
               "Ave_inter_fill_rate, Ave_leaf_fill_rate, Ave_node_merge, "
-              "Ave_node_split, Ave_tree_height";
+              "Ave_node_split, Ave_tree_height, Cache_hit_rate";
     }
     cout << endl;
 
@@ -158,6 +156,8 @@ private:
         total_mc.node_merge += mc.node_merge;
         total_mc.node_split += mc.node_split;
         total_mc.height += mc.height;
+        total_mc.cache_checked += mc.cache_checked;
+        total_mc.cache_hit_cnt += mc.cache_hit_cnt;
         // end
         // delete tree;
       }
@@ -165,17 +165,20 @@ private:
       long ave_time = total_time / exp_cnt;
       printf("%3d, %11ld.%06ld", vt[i], ave_time / 1000000, ave_time % 1000000);
       if (debug) {
-        printf(
-            ", %12.1f, %14.1f, %13.1f, %19.1f, %18.1f, %14.1f, %14.1f, %15.1f",
-            total_mc.node_count / exp_cnt,
-            total_mc.intermediate_node_cnt / exp_cnt,
-            total_mc.leaf_node_cnt / exp_cnt,
-            total_mc.intermediate_node_keys_cnt /
-                total_mc.intermediate_node_cnt / key_max * 100,
-            total_mc.leaf_node_keys_cnt / total_mc.leaf_node_cnt / key_max *
-                100,
-            total_mc.node_merge / exp_cnt, total_mc.node_split / exp_cnt,
-            total_mc.height / exp_cnt);
+        if (total_mc.cache_checked == 0)
+          total_mc.cache_checked = 1.0;
+        printf(", %12.1f, %14.1f, %13.1f, %19.1f, %18.1f, %14.1f, %18.1f, "
+               "%15.1f, %10.1f",
+               total_mc.node_count / exp_cnt,
+               total_mc.intermediate_node_cnt / exp_cnt,
+               total_mc.leaf_node_cnt / exp_cnt,
+               total_mc.intermediate_node_keys_cnt /
+                   total_mc.intermediate_node_cnt / key_max * 100,
+               total_mc.leaf_node_keys_cnt / total_mc.leaf_node_cnt / key_max *
+                   100,
+               total_mc.node_merge / exp_cnt, total_mc.node_split / exp_cnt,
+               total_mc.height / exp_cnt,
+               total_mc.cache_hit_cnt / total_mc.cache_checked * 100);
       }
       cout << endl;
     }
@@ -303,7 +306,9 @@ int main(int argc, char *argv[]) {
       cout << "-s: Execute my simple test" << endl;
       cout << "-b: Execute my benchmark" << endl;
       cout << "-d: (Debug mode) Print additional info" << endl;
-      cout << "-l [num]: define LRU cache capacity (node number). If you don't specify this, LRU cache is disabled (Not assumes disk storage)" << endl;
+      cout << "-l [num]: define LRU cache capacity (node number). If you don't "
+              "specify this, LRU cache is disabled (Not assumes disk storage)"
+           << endl;
       return 1;
     case 's':
       simple_test = true;

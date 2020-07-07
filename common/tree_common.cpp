@@ -70,7 +70,9 @@ void LRUNodeManager::cache_node(Inode *np) {
 }
 
 void LRUNodeManager::check_node(Inode *node) {
+  metric_counter->cache_checked += 1;
   if (get_lru(node)) {
+    metric_counter->cache_hit_cnt += 1;
     return;
   }
   usleep(disk_access_penalty_us);

@@ -37,7 +37,7 @@ Bstartree::Bstartree(short t_num, unsigned int l) {
   if (l == 0) {
     nm = new NodeManager(t_num, 3000, B_STAR);
   } else {
-    nm = new LRUNodeManager(t_num, l, B_STAR);
+    nm = new LRUNodeManager(t_num, l, B_STAR, &mc);
   }
   key_max = t_num * 2;
   key_min = t_num - 1;

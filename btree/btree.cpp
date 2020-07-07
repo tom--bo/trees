@@ -36,7 +36,7 @@ Btree::Btree(short t_num, unsigned int l) {
   if (l == 0) {
     nm = new NodeManager(t_num, 3000, B);
   } else {
-    nm = new LRUNodeManager(t_num, l, B);
+    nm = new LRUNodeManager(t_num, l, B, &mc);
   }
 
   key_max = t_num * 2 - 1;
