@@ -1,10 +1,6 @@
 #include "btree.h"
-#include <bits/stdc++.h>
 using namespace std;
 
-/*
- * Btree
- */
 short find_left_most_key_or_right_bound_in_node(BNode *x, unsigned long k) {
   short l = -1, r = x->key_cnt, m;
   while (r - l > 1) {
@@ -38,7 +34,6 @@ Btree::Btree(short t_num, unsigned int l) {
   } else {
     nm = new LRUNodeManager(t_num, l, B, &mc);
   }
-
   key_max = t_num * 2 - 1;
   key_min = t_num - 1;
 
@@ -137,7 +132,7 @@ Item Btree::search(BNode *x, unsigned long k) {
       return it;
     }
   }
-  return Item{0, 0}; // return (key: 0, val: 0)
+  return Item{0, 0}; // If not found, return (key: 0, val: 0)
 }
 
 unsigned long Btree::count_range(BNode *x, unsigned long min_,
@@ -334,14 +329,12 @@ void Btree::tree_walk(BNode *x, vector<Item> *v) {
   if (x->is_leaf) {
     for (short i = 0; i < x->key_cnt; i++) {
       v->push_back(x->keys[i]);
-      // printf("key: %2lld, val: %2lld\n", x->keys[i].key, x->keys[i].val);
     }
     return;
   } else {
     for (short i = 0; i < x->key_cnt; i++) {
       tree_walk(x->p[i], v);
       v->push_back(x->keys[i]);
-      // printf("key: %2lld, val: %2lld\n", x->keys[i].key, x->keys[i].val);
     }
     tree_walk(x->p[x->key_cnt], v);
   }

@@ -1,4 +1,3 @@
-#include <bits/stdc++.h>
 #ifndef treecommon
 #define treecommon
 #include "tree_common.h"

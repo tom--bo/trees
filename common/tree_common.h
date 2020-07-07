@@ -1,4 +1,8 @@
-#include <bits/stdc++.h>
+#include <list>
+#include <queue>
+#include <stdio.h>
+#include <unordered_map>
+#include <vector>
 #define UNUSED(x) ((void)x)
 
 enum IndexType {

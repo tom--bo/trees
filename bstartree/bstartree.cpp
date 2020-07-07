@@ -1,10 +1,5 @@
 #include "bstartree.h"
-#include <bits/stdc++.h>
 using namespace std;
-
-/*
- * Bstartree
- */
 
 short find_left_most_key_or_right_bound_in_node(BsNode *x, unsigned long k) {
   short l = -1, r = x->key_cnt, m;
@@ -253,7 +248,7 @@ Item Bstartree::search(BsNode *x, unsigned long k) {
       return it;
     }
   }
-  return Item{0, 0}; // return (key: 0, val: 0)
+  return Item{0, 0}; // If not found, return (key: 0, val: 0)
 }
 
 unsigned long Bstartree::count_range(BsNode *x, unsigned long min_,
@@ -452,14 +447,12 @@ void Bstartree::tree_walk(BsNode *x, vector<Item> *v) {
   if (x->is_leaf) {
     for (short i = 0; i < x->key_cnt; i++) {
       v->push_back(x->keys[i]);
-      // printf("key: %2lld, val: %2lld\n", x->keys[i].key, x->keys[i].val);
     }
     return;
   } else {
     for (short i = 0; i < x->key_cnt; i++) {
       tree_walk(x->p[i], v);
       v->push_back(x->keys[i]);
-      // printf("key: %2lld, val: %2lld\n", x->keys[i].key, x->keys[i].val);
     }
     tree_walk(x->p[x->key_cnt], v);
   }

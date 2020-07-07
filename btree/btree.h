@@ -1,4 +1,3 @@
-#include <bits/stdc++.h>
 #ifndef treecommon
 #define treecommon
 #include "tree_common.h"
@@ -31,8 +30,7 @@ private:
   INodeManager *nm;
 
 public:
-  // B-Tree-Create
-  Btree(short t_num, unsigned int l);
+  Btree(short t_num, unsigned int l); // B-Tree-Create
   void update_metric();
   unsigned get_key_max() { return key_max; };
   void insert(Item k);

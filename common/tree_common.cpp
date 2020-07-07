@@ -1,7 +1,6 @@
 #include "bplustree.h"
 #include "bstartree.h"
 #include "btree.h"
-#include <bits/stdc++.h>
 #include <unistd.h>
 using namespace std;
 
