@@ -377,6 +377,7 @@ bool Bplustree::delete_key(BpNode *x, unsigned long k) {
 void Bplustree::update_metric() {
   // height
   BpNode *x = this->root;
+  mc.root_key_count = x->key_cnt;
   mc.height = 1;
   while (!x->is_leaf) {
     x = x->p[0];

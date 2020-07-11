@@ -27,6 +27,7 @@ struct Item {
  */
 struct MetricCounter {
   double height{0};
+  double root_key_count{0};
   double node_count{0};
   double node_merge{0};
   double node_split{0};

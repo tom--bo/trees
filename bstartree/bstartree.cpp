@@ -415,6 +415,7 @@ bool Bstartree::delete_key(BsNode *x, unsigned long k) {
 void Bstartree::update_metric() {
   // height
   BsNode *x = this->root;
+  mc.root_key_count = x->key_cnt;
   mc.height = 1;
   while (!x->is_leaf) {
     x = x->p[0];

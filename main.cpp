@@ -36,10 +36,10 @@ public:
 
   void exec_benchmark(bool debug, unsigned int lru_capa) {
     cout << "=== BENCH START ===" << endl;
-    vector<int> t = {4, 8, 16, 32, 64, 128, 256, 512};
-    bench(debug, lru_capa, t, 10, 1000000, 1000, 100000, 0, 0, 100, 0);
-    bench(debug, lru_capa, t, 10, 1000000, 1000, 100000, 0, 0, 90, 10);
-    bench(debug, lru_capa, t, 10, 1000000, 1000, 100000, 0, 0, 80, 20);
+    vector<int> t = {/*4, 8, 16, 32,*/ 64, 128, 256, 512};
+    bench(debug, lru_capa, t, 10, 100000, 1000, 100000, 0, 0, 100, 0);
+    // bench(debug, lru_capa, t, 10, 1000000, 1000, 100000, 0, 0, 90, 10);
+    // bench(debug, lru_capa, t, 10, 1000000, 1000, 100000, 0, 0, 80, 20);
   }
 
   void exec_test(bool debug, unsigned int lru_capa) {
@@ -91,7 +91,7 @@ private:
            ope_cnt, mod, lru_capa, select_pct, range_pct, insert_pct, del_pct);
     cout << "  T, Ave_total_time(ms)";
     if (debug) {
-      cout << ", Ave_node_cnt, Ave_inter_node, Ave_leaf_node, "
+      cout << ", Ave_node_cnt, Ave_inter_node, Ave_leaf_node, Ave_root_keys, "
               "Ave_inter_fill_rate, Ave_leaf_fill_rate, Ave_node_merge, "
               "Ave_node_split, Ave_tree_height, Cache_hit_rate";
     }
@@ -149,6 +149,7 @@ private:
         tree->update_metric();
         MetricCounter mc = tree->get_metrics();
         total_mc.node_count += mc.node_count;
+        total_mc.root_key_count += mc.root_key_count;
         total_mc.intermediate_node_cnt += mc.intermediate_node_cnt;
         total_mc.intermediate_node_keys_cnt += mc.intermediate_node_keys_cnt;
         total_mc.leaf_node_cnt += mc.leaf_node_cnt;
@@ -167,18 +168,19 @@ private:
       if (debug) {
         if (total_mc.cache_checked == 0)
           total_mc.cache_checked = 1.0;
-        printf(", %12.1f, %14.1f, %13.1f, %19.1f, %18.1f, %14.1f, %18.1f, "
-               "%15.1f, %10.1f",
-               total_mc.node_count / exp_cnt,
-               total_mc.intermediate_node_cnt / exp_cnt,
-               total_mc.leaf_node_cnt / exp_cnt,
-               total_mc.intermediate_node_keys_cnt /
-                   total_mc.intermediate_node_cnt / key_max * 100,
-               total_mc.leaf_node_keys_cnt / total_mc.leaf_node_cnt / key_max *
-                   100,
-               total_mc.node_merge / exp_cnt, total_mc.node_split / exp_cnt,
-               total_mc.height / exp_cnt,
-               total_mc.cache_hit_cnt / total_mc.cache_checked * 100);
+        printf(
+            ", %12.1f, %14.1f, %13.1f, %13.1f, %19.1f, %18.1f, %14.1f, %18.1f, "
+            "%15.1f, %10.1f",
+            total_mc.node_count / exp_cnt,
+            total_mc.intermediate_node_cnt / exp_cnt,
+            total_mc.leaf_node_cnt / exp_cnt, total_mc.root_key_count / exp_cnt,
+            total_mc.intermediate_node_keys_cnt /
+                total_mc.intermediate_node_cnt / key_max * 100,
+            total_mc.leaf_node_keys_cnt / total_mc.leaf_node_cnt / key_max *
+                100,
+            total_mc.node_merge / exp_cnt, total_mc.node_split / exp_cnt,
+            total_mc.height / exp_cnt,
+            total_mc.cache_hit_cnt / total_mc.cache_checked * 100);
       }
       cout << endl;
     }
